@@ -1,0 +1,58 @@
+{% load static %}
+{%if request_error%}
+{{actual_error}}
+{%else%}
+{%if response_code == 200 %}
+{% if img_no >= 1 %}
+<div style="width:99%;">
+  <div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Images
+    </div>
+
+<table id="img-display-data-table" class="display nowrap dataTable dtr-inline collapsed cell-border"  role="grid">
+<thead>
+    <tr role="row">
+      <th>Id</th>
+      <th>Created</th>
+      <th>Repo Tags</th>
+      <th>Shared Size</th>
+      <th>Size</th>
+      <th>Actions</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+</thead>
+<tbody>
+    {% for item in img_json %}
+          <tr>
+      <td>{{item.Id}}</td>
+      <td>{{item.Created}}</td>
+      <td id="td_repo_tags">{{item.RepoTags}}</td>
+      <td>{{item.SharedSize}}</td>
+      <td>{{item.Size}}</td>
+      <td><a id="createContainer" title="Create container from image" href="#" onclick="containerOperations('create_container_form','{{item.Id}}');return false;"><img alt="Create Image" src="{%static '/images/plus-square.svg' %}" height="14px" width="14px"></a></td>
+      <td><a id="inspectImage" title="Inspect image" href="#" onclick="containerOperations('inspect_image','{{item.Id}}');return false;"><img alt="Inspect Image" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></td>
+      <td><a id="historyImage" title="Image History" href="#" onclick="containerOperations('history_image','{{item.Id}}');return false;"><img alt="Image History" src="{%static '/images/calendar-minus.svg' %}" height="14px" width="14px"></td>
+      <td><a id="deleteImage" title="Delete image" href="#" onclick="containerOperations('delete_image','{{item.Id}}');return false;"><img alt="Delete Image" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></td>
+
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table><br>
+
+  <div class="bash">
+    docker images
+
+  </div>
+
+</div>
+
+{%else%}
+
+<h1>There are <strong>no</strong> images.</h1>
+{%endif%}
+{%else%}
+There was an error connecting to Docker.
+{%endif%}
+{%endif%}

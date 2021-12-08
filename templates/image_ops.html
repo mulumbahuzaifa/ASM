@@ -1,0 +1,845 @@
+{% load static %}
+
+{% if c_activity == "delete_cache" %}
+<div style="width:98%">
+
+  <div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+      Response from docker on deleting cache.
+      </div>
+
+  <p id="pre_delete_cache">{{full_response}}</p>
+  <div class="bash">
+    docker builder prune
+  </div>
+</div>
+{%endif%}
+
+{% if c_activity == "delete_unused_images" %}
+<div style="width:98%">
+  <div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+      Response from docker on deleting unused images.
+      </div>
+  <p id="pre_delete_unused_images">{{full_response}}</p>
+  <div class="bash">
+    docker image prune
+  </div>
+</div>
+{%endif%}
+
+{% if c_activity == "history_image" %}
+<div style="width:98%">
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Response from docker on history of image {{c_parameter}}
+    </div>
+<pre id="len_resp_dict_obj" hidden>{{len_resp_dict_obj}}</pre>
+<table class="w3-table w3-striped w3-bordered w3-border w3-white" width="98%">
+{%for item in resp_dict_obj %}
+{% with num=forloop.counter %}
+{%for key,value in item.items %}
+{%if key == 'Created'%}
+<tr>
+<td><pre id="pre_normal_key"><strong>Created</strong></pre></td>
+<td><pre id="pre_created{{num}}">{{value}}</pre></td>
+
+</tr>
+{%else%}
+<tr>
+<td><pre id="pre_normal_key"><strong>{{key}}</strong></pre></td>
+<td><pre id="pre_normal_val">{{value}}</pre></td>
+</tr>
+{%endif%}
+
+{%endfor%}
+{% endwith %}
+{%endfor%}
+</table>
+
+
+<div class="bash">
+docker image history {{c_parameter}}
+</div>
+</div>
+{%endif%}
+
+{% if c_activity == "inspect_image" %}
+<div style="width:98%">
+<div class="bash">
+<h3>Response from docker:</h3><br>
+<pre id="pre_inspect_image">{{full_response}}</pre>
+</div>
+<div style="height:3px;">
+
+</div>
+<div class="bash">
+
+{%for id,val in response_dict.items%}
+{%if id == 'Id'%}
+docker inspect {{val|slice:"7:19"}}
+{%endif%}
+{%endfor%}
+
+
+</div>
+</div>
+{%endif%}
+
+{% if c_activity == "tar_uploaded" %}
+<div style="width:98%">
+{{message}}
+</div>
+{%endif%}
+{% if c_activity == "build_image_submit" or c_activity == "tar_uploaded" %}
+<div style="width:98%">
+{% if c_activity == "build_image_submit" %}
+<h3>Building image from dockerfile below</h3>
+<div style="width:98%"><pre>{{dockerfile}}</pre></div>
+{%endif%}
+{% if c_activity == "tar_uploaded" %}
+<h3>Building image from tarfile <strong>{{tarfile}}</strong></h3>
+{%endif%}
+{%if tag_len > 1 %}
+<h3><p class="text">Image Tag<p></h3>
+<div style="word-wrap: break-word;width:98%;"><p class="bash">{{tag}}</p></div>
+{%endif%}
+<h3>Response from docker:</h3> <br>
+<div style="word-wrap: break-word;width:98%;"><p class="bash">{{j_response}}</p></div>
+</div>
+{%endif%}
+
+{% if c_activity == "search_image" %}
+<div style="width:98%">
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Searching image <strong>{{image_name}}</strong> from docker hub registry.
+    </div>
+{% if search_len > 0 and status_code == 200 %}
+<div width="98%">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="img-search">
+<thead>
+  <tr>
+    <th>
+      Stars
+    </th>
+    <th>
+      Official?
+    </th>
+    <th>
+      Name
+    </th>
+    <th>
+      Automated?
+    </th>
+    <th>
+      Description
+    </th>
+    <th>
+      Pull
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+{%for item in resp_load %}
+<tr>
+  <td>
+    {{item.star_count}}
+  </td>
+  <td>
+    {%if item.is_official == True %}
+    Yes
+    {%else%}
+    No
+    {%endif%}
+  </td>
+  <td>
+    {{item.name}}
+  </td>
+  <td>
+    {%if item.is_automated == True %}
+    Yes
+    {%else%}
+    No
+    {%endif%}
+  </td>
+  <td>
+    {{item.description}}
+  </td>
+<td>
+  <img id="wait_pull" alt="Wait" src="{%static '/images/hourglass.svg' %}" height="14px" width="14px" hidden><a id="pull_image" title="Pull image on dockerhub" href="#" onclick="pullImageFromSearch('{{item.name}}');return false;"><img id="pull_image_ico" alt="Search image on dockerhub" src="{%static '/images/arrow-alt-circle-down.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+{%endfor%}
+</tbody>
+</table>
+</div>
+{%else%}
+
+{% if status_code != 200 %}
+Check that you can reach docker server from where docker daemon is running.<br>
+{{resp_load}}
+{%else%}
+No image found matching description <strong>{{image_name}}</strong> from docker hub registry.<br>
+{{resp_load}}
+{%endif%}
+
+
+{%endif%}
+</div>
+{%endif%}
+
+{% if c_activity == "pull_image" %}
+<div style="width:98%">
+<div style="width:98%">
+
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Pulling image <strong>{{image_name}}</strong> from docker hub registry.
+    </div>
+
+<div style="word-wrap: break-word;width:98%"><p class="bash">{{full_response}}</p></div>
+</div>
+</div>
+{%endif%}
+
+{% if c_activity == "pull_image_form" %}
+<div style="width:98%">
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Create an image by pulling it from docker hub registry.
+    </div>
+<label id="lbl_pull_image">Image Name e.g ubuntu:latest </label><input type="text" id="txt_pull_image"> <a id="InspectContainer" title="Search image on dockerhub" href="#" onclick="pullImage('search_image');return false;"><img alt="Search image on dockerhub" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a><br>
+<input class="w3-button w3-black" id="btn_pull_image" type="button" value="Submit" onclick="pullImage('pull_image');return false;">
+</div>
+{%endif%}
+
+{% if c_activity == "render_build_image_form" %}
+<div style="width:98%">
+<label id="lbldockerfile"> Dockerfile </label><br><textarea  id="dockerfilearea" rows="12" cols="60">
+FROM ubuntu:latest
+RUN mkdir demo
+RUN apt-get update
+RUN apt-get -y install vim
+</textarea>
+<label id="lbltag"><br>Tag</label><br><textarea  id="tagarea" rows="2" cols="60"></textarea><br><br>
+<input class="w3-button w3-black" type="submit" id="submitbuild" value="Build" onclick="buildImage('build_image_submit');return false;"></input>
+</div>
+{%endif%}
+
+{% if c_activity == "build_image_form" %}
+<div style="width:98%">
+<table id="buildoptions" style="display:block;">
+<tr><td><label> 1. Build from Dockerfile</label></td>
+<td><input type="radio"  name="radiobuildimage"  value="dockerfile" onclick="buildImage('render_build_image_form');"></td>
+<tr><td><label> 2. Build from tarball</label></td>
+<td><input type="radio" name="radiobuildimage" value="tarball" onclick="buildImage('render_build_image_form_tarball');"></td></tr>
+</table>
+</div>
+ {%endif%}
+
+{% if c_activity == "render_build_image_form_tarball" %}
+<div style="width:98%">
+<label id="lblupload" style="display:none;">Upload tarball </label><br><input type="file" id="tarballfileupload" name="filename">
+<br><br><label id="lbltag">Tag </label><br><textarea  id="tagarea" rows="2" cols="60"></textarea><br>
+<br>
+<input class="w3-button w3-black" type="submit" id="submitbuildtarball" value="Build" onclick="buildImageTarball();"></input>
+</div>
+{%endif%}
+{% if c_activity == "delete_image" %}
+<div style="width:98%">
+{% if status_code == 200 %}
+Image {{c_parameter}} deleted. <br><br>
+{%else%}
+There was an error deleting image {{c_parameter}}<br><br>
+{%endif%}
+
+<strong>Response from docker:</strong><br>
+<div style="width:98%">
+  <p id="full_response">{{full_response}}</p>
+</div>
+<div style="top-margin:5px;bottom-margin:5px;">
+
+</div>
+<div class="bash">
+  docker image rm {{c_parameter}}
+</div>
+</div>
+{%endif%}
+
+{% if c_activity == "export_container" %}
+<div style="width:98%">
+<a href={{url}}>Export</a> the contents of a container as a tarball.
+</div>
+{%endif%}
+
+
+{% if c_activity == "delete_container" %}
+<div style="width:98%">
+{%if ostatus == "ok" %}
+Container with ID {{c_parameter}} was deleted.
+{%else%}
+{{error}}
+{%endif%}
+</div>
+{%endif%}
+
+{% if c_activity == "list_all" %}
+<div style="width:98%">
+
+{% if len == 1 %}
+<h1>There is  <strong> {{len}} {{c_parameter}} </strong> container.</h1>
+{%endif%}
+
+{% if len == 0 %}
+<h1>There are  <strong> no {{c_parameter}} </strong> containers.</h1>
+{%endif%}
+
+{% if len > 1 %}
+<h1>There are  <strong> {{len}} {{c_parameter}} </strong> containers.</h1>
+{%endif%}
+
+{% if len >= 1 %}
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+  <tr>
+  <td>
+  Id
+  </td>
+  <td>
+  Names
+  </td>
+
+  <td>
+  Status
+  </td>
+
+  <td colspan="4">
+
+  </td>
+  </tr>
+{% for p in resp%}
+
+<tr>
+<td>
+{{p.Id | slice:"0:12"}}
+</td>
+<td>
+{{p.Names}}
+</td>
+
+{% if p.State == "running" %}
+
+  <td bgcolor="green">
+  {{p.Status}}
+  </td>
+  {% elif p.State == "exited" or p.State == "dead" %}
+  <td bgcolor="#C70039">
+  {{p.Status}}
+  </td>
+  {% elif p.State == "restarting" or p.State == "removing" %}
+  <td bgcolor="#bf9526">
+  {{p.Status}}
+  </td>
+  {% elif p.State == "paused" %}
+  <td bgcolor="#FFC300">
+  {{p.Status}}
+  </td>
+  {% elif p.State == "created" %}
+  <td bgcolor="grey">
+  {{p.Status}}
+  </td>
+{% else %}
+<td bgcolor="black">
+{{p.Status}}
+</td>
+{% endif %}
+
+<td id="network"></td>
+{% if p.State == "created" %}
+<td><a id="startContainer" title="Start container" href="#" onclick="containerOperations('start_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="deleteContainer" title="Delete container" href="#" onclick="containerOperations('delete_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></a></td>
+
+<td>
+  <div class="dropdown">
+   <button class="dropbtn">More Actions</button>
+   <div class="dropdown-content">
+   <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+   <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+   <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+   <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+   <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+   </div>
+  </div>
+
+{%endif%}
+
+{% if p.State == "restarting" %}
+<td colspan="6"><a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="killContainer" title="Kill container" href="#" onclick="containerOperations('kill_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Kill Container" src="{%static '/images/angry.svg' %}" height="14px" width="14px"></a></td>
+
+{%endif%}
+
+{% if p.State == "running" %}
+<td><a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="listProcesses" title="List Processes" href="#" onclick="containerOperations('list_processes','{{p.Id | slice:"0:12"}}');return false;"><img alt="List Processes" src="{%static '/images/lightbulb.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="stopContainer" title="Stop container" href="#" onclick="containerOperations('stop_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Stop Container" src="{%static '/images/stop-circle.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="restartContainer" title="Restart container" href="#" onclick="containerOperations('restart_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Restart Container" src="{%static '/images/caret-square-right.svg' %}" height="14px" width="14px"></a></td>
+<td>
+  <div class="dropdown">
+   <button class="dropbtn">More Actions</button>
+   <div class="dropdown-content">
+   <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+   <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+   <a id="pauseContainer" title="Pause container" href="#" onclick="containerOperations('pause_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Pause Container" src="{%static '/images/pause-circle.svg' %}" height="14px" width="14px"> Pause</a>
+   <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+   <a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"> Logs</a>
+   <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+   <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+   <a id="killContainer" title="Kill container" href="#" onclick="containerOperations('kill_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Kill Container" src="{%static '/images/angry.svg' %}" height="14px" width="14px"> Kill</a>
+   </div>
+  </div>
+
+{%endif%}
+
+
+{% if p.State == "paused" %}
+<td><a id="unpauseContainer" title="Unpause container" href="#" onclick="containerOperations('unpause_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Unpause Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="listProcesses" title="List Processes" href="#" onclick="containerOperations('list_processes','{{p.Id | slice:"0:12"}}');return false;"><img alt="List Processes" src="{%static '/images/lightbulb.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="restartContainer" title="Restart container" href="#" onclick="containerOperations('restart_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Restart Container" src="{%static '/images/caret-square-right.svg' %}" height="14px" width="14px"></a></td>
+
+<td>
+  <div class="dropdown">
+   <button class="dropbtn">More Actions</button>
+   <div class="dropdown-content">
+   <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+   <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+   <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+   <a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"> Logs</a>
+   <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+   <a id="stopContainer" title="Stop container" href="#" onclick="containerOperations('stop_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Stop Container" src="{%static '/images/stop-circle.svg' %}" height="14px" width="14px"> Stop</a>
+   <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+   <a id="killContainer" title="Kill container" href="#" onclick="containerOperations('kill_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Kill Container" src="{%static '/images/angry.svg' %}" height="14px" width="14px"> Kill</a>
+   </div>
+  </div>
+{%endif%}
+
+
+{% if p.State == "exited" or p.State == "dead"%}
+<td><a id="startContainer" title="Start container" href="#" onclick="containerOperations('start_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="deleteContainer" title="Delete container" href="#" onclick="containerOperations('delete_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></a></td>
+<td>
+  <div class="dropdown">
+   <button class="dropbtn">More Actions</button>
+   <div class="dropdown-content">
+   <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+   <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+   <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+   <a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"> Logs</a>
+   <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+   <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+   </div>
+  </div>
+{%endif%}
+
+
+
+
+
+{% if p.State == "restarting" or p.State == "removing"%}
+<td><a id="startContainer" title="Start container" href="#" onclick="containerOperations('start_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="deleteContainer" title="Delete container" href="#" onclick="containerOperations('delete_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></a></td>
+
+<td>
+  <div class="dropdown">
+   <button class="dropbtn">More Actions</button>
+   <div class="dropdown-content">
+   <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+   <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+   <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+   <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+   </div>
+  </div>
+{%endif%}
+
+
+
+
+</tr>
+<tr id="{{p.Id | slice:"0:12"}}" hidden>
+  <td >
+    <label for="contname"></label>New Name<input type="text" id="newcontname{{p.Id | slice:"0:12"}}"></input>
+    <input class="w3-button w3-black" type="button" value="Submit" onclick="containerOperations('update_name','{{p.Id | slice:"0:12"}}');return false;">
+  </td>
+</tr>
+{%endfor%}
+</table>
+{%endif%}
+{%endif%}
+
+{% if c_activity == "container_stats" or c_activity == "filesystem_changes" or c_activity == "list_logs" or c_activity == "list_processes" or c_activity == "start_container" or c_activity == "restart_container" or c_activity == "stop_container" or c_activity == "kill_container" or c_activity == "update_name"  or c_activity == "pause_container" or c_activity == "unpause_container"%}
+<h3>Status of container:</h3>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+  <tr>
+  <td>
+  Id
+  </td>
+  <td>
+  Names
+  </td>
+  <td>
+  Status
+  </td>
+  <td colspan="4">
+  Action
+  </td>
+  </tr>
+{% for p in resp%}
+<tr>
+<td>
+{{p.Id | slice:"0:12"}}
+</td>
+<td>
+{{p.Names}}
+</td>
+{% if p.State == "running" %}
+
+  <td bgcolor="green">
+  {{p.Status}}
+  </td>
+{% elif p.State == "paused" %}
+<td bgcolor="#FFC300">
+{{p.Status}}
+</td>
+{% elif p.State == "exited" or p.State == "dead" %}
+<td bgcolor="#C70039">
+{{p.Status}}
+</td>
+{% else %}
+<td bgcolor="red">
+{{p.Status}}
+</td>
+{% endif %}
+
+
+{% if p.State == "running" %}
+<td><a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="listProcesses" title="List Processes" href="#" onclick="containerOperations('list_processes','{{p.Id | slice:"0:12"}}');return false;"><img alt="List Processes" src="{%static '/images/lightbulb.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="stopContainer" title="Stop container" href="#" onclick="containerOperations('stop_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Stop Container" src="{%static '/images/stop-circle.svg' %}" height="14px" width="14px"></a></td>
+<td><a id="restartContainer" title="Restart container" href="#" onclick="containerOperations('restart_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Restart Container" src="{%static '/images/caret-square-right.svg' %}" height="14px" width="14px"></a></td>
+<td>
+  <div class="dropdown">
+   <button class="dropbtn">More Actions</button>
+   <div class="dropdown-content">
+   <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+   <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+   <a id="pauseContainer" title="Pause container" href="#" onclick="containerOperations('pause_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Pause Container" src="{%static '/images/pause-circle.svg' %}" height="14px" width="14px"> Pause</a>
+   <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+   <a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"> Logs</a>
+   <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+   <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+   <a id="killContainer" title="Kill container" href="#" onclick="containerOperations('kill_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Kill Container" src="{%static '/images/angry.svg' %}" height="14px" width="14px"> Kill</a>
+   </div>
+  </div>
+
+{% elif p.State == "paused" %}
+  <td><a id="unpauseContainer" title="Unpause container" href="#" onclick="containerOperations('unpause_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Unpause Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+  <td><a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a></td>
+  <td><a id="listProcesses" title="List Processes" href="#" onclick="containerOperations('list_processes','{{p.Id | slice:"0:12"}}');return false;"><img alt="List Processes" src="{%static '/images/lightbulb.svg' %}" height="14px" width="14px"></a></td>
+  <td><a id="restartContainer" title="Restart container" href="#" onclick="containerOperations('restart_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Restart Container" src="{%static '/images/caret-square-right.svg' %}" height="14px" width="14px"></a></td>
+
+  <td>
+    <div class="dropdown">
+     <button class="dropbtn">More Actions</button>
+     <div class="dropdown-content">
+     <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+     <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+     <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+     <a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"> Logs</a>
+     <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+     <a id="stopContainer" title="Stop container" href="#" onclick="containerOperations('stop_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Stop Container" src="{%static '/images/stop-circle.svg' %}" height="14px" width="14px"> Stop</a>
+     <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+     <a id="killContainer" title="Kill container" href="#" onclick="containerOperations('kill_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Kill Container" src="{%static '/images/angry.svg' %}" height="14px" width="14px"> Kill</a>
+     </div>
+    </div>
+{% elif p.State == "exited" or p.State == "dead"%}
+    <td><a id="startContainer" title="Start container" href="#" onclick="containerOperations('start_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+    <td><a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"></a></td>
+    <td><a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"></a></td>
+    <td><a id="deleteContainer" title="Delete container" href="#" onclick="containerOperations('delete_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></a></td>
+
+    <td>
+      <div class="dropdown">
+       <button class="dropbtn">More Actions</button>
+       <div class="dropdown-content">
+       <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+       <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+       <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+       <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+       </div>
+      </div>
+
+
+
+
+{% elif p.State == "created"%}
+      <td><a id="startContainer" title="Start container" href="#" onclick="containerOperations('start_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+      <td><a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a></td>
+      <td><a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"></a></td>
+      <td><a id="deleteContainer" title="Delete container" href="#" onclick="containerOperations('delete_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></a></td>
+
+      <td>
+        <div class="dropdown">
+         <button class="dropbtn">More Actions</button>
+         <div class="dropdown-content">
+         <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+         <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+         <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+         <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+         <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+         </div>
+        </div>
+  {%else%}
+
+  <td><a id="startContainer" title="Start container" href="#" onclick="containerOperations('start_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"></a></td>
+  <td><a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"></a></td>
+  <td><a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"></a></td>
+  <td><a id="deleteContainer" title="Delete container" href="#" onclick="containerOperations('delete_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></a></td>
+
+  <td>
+    <div class="dropdown">
+     <button class="dropbtn">More Actions</button>
+     <div class="dropdown-content">
+     <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+     <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+     <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/list-alt.svg' %}" height="14px" width="14px"> Stats</a>
+     <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/file-archive.svg' %}" height="14px" width="14px"> Export</a>
+     </div>
+    </div>
+
+{%endif%}
+
+
+
+
+
+</tr>
+{%endfor%}
+</table>
+
+<br>
+
+{% if content_len > 2%}
+{% if c_activity != "filesystem_changes" %}
+<strong>Find below response from docker.</strong><br>
+<pre id="pre_processes">{{content}}</pre>
+{%endif%}
+{% if c_activity == "filesystem_changes" and content_null != "yes" %}
+
+If the response from docker is not null, use below legend to understand output for changes to filesystem:<br>
+
+    0: Modified<br>
+    1: Added <br>
+    2: Deleted<br>
+
+<pre id="pre_processes">{{content}}</pre>
+</div>
+{% endif %}
+
+
+{% if c_activity == "filesystem_changes" and content_null == "yes" %}
+<div style="width:98%">
+<strong> No changes to filesystem</strong>
+</div>
+{% endif %}
+
+
+{% endif %}
+
+{%endif%}
+{% if c_activity == "build_create_form" %}
+<div style="width:98%">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="width:98%">
+  <tr><td>Container Name</td><td><input type=text id="containername" ></input></td><td class="w3-small">The container name must start with alphanumeric character and cannot be one character long. The following can be used together with alphanumeric characters -, . or -</td></tr>
+  <tr><td>Parent ID</td><td colspan="2"><input type=text id="parentid" value="{{c_parameter}}" readonly></input></td></tr>
+  <tr><td>Hostname</td><td><input type=text id="hostname" ></input></td><td class="w3-small">The hostname for the container. Should follow RFC 1123 hostname.</td></tr>
+  <tr><td>Domainname</td><td><input type=text id="domainname" ></input></td><td class="w3-small">The container domain name.</td></tr>
+  <tr><td>Username</td><td><input type=text id="fusername" ></input></td><td class="w3-small">This user will be used to run commands in the container.</td></tr>
+  <tr><td>AttachStdin</td><td><label>No</label>
+  <input type="radio" checked="checked" name="AttachStdin" value="false"><label>Yes</label>
+  <input type="radio" name="AttachStdin" value="true"></td>
+  <td class="w3-small">Attach container to stdin.</td>
+</tr>
+
+  <tr><td>AttachStdout</td><td><label>No</label>
+  <input type="radio" checked="checked" name="AttachStdout" value="false"><label>Yes</label>
+  <input type="radio" name="AttachStdout" value="true"></td>
+  <td class="w3-small">Attach container to stdout.</td>
+</tr>
+
+  <tr><td>AttachStder</td><td><label>No</label>
+  <input type="radio" checked="checked" name="AttachStderr" value="false"><label>Yes</label>
+  <input type="radio" name="AttachStderr" value="true"></td>
+  <td class="w3-small">Attach container to stdout.</td>
+  </tr>
+
+  <tr><td>ExposedPorts</td><td><input type=text id="exposed_ports_1"></input> </td>
+<td class="w3-small">Exposed ports. Should be an object mapped to empty object. Example {"22/tcp":{}} or for multiple ports {"22/tcp":{},"80/tcp":{},"8020/tcp":{}}<br></td>
+  </tr>
+  <tr><td>Tty</td><td><label>No</label>
+  <input type="radio" checked="checked" name="Tty" name="Tty" value="false"><label>Yes</label>
+  <input type="radio" name="Tty" value="true"></td>
+  <td class="w3-small">Attach streams to TTY. If this is not selected and nothing is running, container will exit when started.</td>
+</tr>
+
+  <tr><td>OpenStdin</td><td><label>No</label>
+  <input type="radio" checked="checked" name="OpenStdin" value="false"><label>Yes</label>
+  <input type="radio" name="OpenStdin" value="true"></td>
+<td class="w3-small"></td>
+</tr>
+
+  <tr><td>StdinOnce</td><td><label>No</label>
+  <input type="radio" checked="checked" name="StdinOnce" value="false"><label>Yes</label>
+  <input type="radio" name="StdinOnce" value="true"></td>
+<td class="w3-small">Close stdin when client disconnects</td>
+</tr>
+
+  <tr><td>Env</td><td><input type=text id="Env" ></input></td><td class="w3-small">Environment variables to set in the container. Example ORACLE_SID=ASF and if multiple separate with comma e.g ORACLE_BASE=/u01/app/oracle,ORACLE_SID=ASF</td>
+</tr>
+  <tr><td>Cmd</td><td><input type=text id="Cmd" ></input></td>
+    <td class="w3-small">Commands to run in the container. Example date and if multiple separate with comma e.g date , pwd , ls</td>
+  </tr>
+
+  <tr><td>Healthcheck</td><td><textarea  id="Healthcheck" rows="12" cols="30"></textarea></td>
+  <td class="w3-small">A test to perform to check that the container is healthy. Example: <br>
+{<br>"Interval":0,<br>"Retries":0,<br>"StartPeriod":0,<br>"Test": ["CMD","/bin/date"],<br>"Timeout":0<br>}
+  </td></tr>
+  <tr><td>ArgsEscaped</td><td><label>No</label>
+  <input type="radio" checked="checked" name="ArgsEscaped" value="false"><label>Yes</label>
+  <input type="radio" name="ArgsEscaped" value="true"></td>
+  <td class="w3-small">
+Windows only
+  </td>
+
+</tr>
+
+  <tr><td>Volumes</td><td><textarea  id="Volumes" rows="12" cols="30"></textarea></td>
+    <td class="w3-small">Mount point paths in the container. Example <br> {<br>"/volumes/data/":{},<br>"/u01/app/database":{}<br>}</td>
+  </tr>
+  <tr><td>WorkingDir</td><td colspan="2"><input type=text id="WorkingDir" ></input></td></tr>
+  <tr><td>Entrypoint</td><td><input type=text id="Entrypoint" ></input></td>
+    <td class="w3-small">Entrypoint for the container and allows container to run as executable.
+    Commands from commandline when starting container will be passed to entry point. Example
+    /docker-entrypoint.sh and if multiple, separate with comma e.g /docker-entrypoint1.sh, /docker-entrypoint2.sh
+</td>
+  </tr>
+  <tr><td>NetworkDisabled</td><td><label>No</label>
+  <input type="radio" checked="checked" name="NetworkDisabled" value="false"><label>Yes</label>
+  <input type="radio" name="NetworkDisabled" value="true"></td><td></td></tr>
+  <tr><td>MacAddress</td><td><input type=text id="MacAddress" ></input></td><td></td></tr>
+  <tr><td>OnBuild</td><td><input type=text id="OnBuild" ></input></td>
+<td class="w3-small">Will be executed when  image is used as a base for another build. Separate multiple instructions with a comma. Example<br>RUN npm install,COPY . /usr/src/app</td>
+  </tr>
+  <tr><td>Labels</td><td valign="top"><textarea  id="Labels" rows="12" cols="30"></textarea></td>
+<td class="w3-small">User define key/value labels. Example <br>
+{"vendor":"dcc","version":"3.0"}
+</td>
+  </tr>
+  <tr><td>StopSignal</td><td><input type=text id="StopSignal" ></input></td><td class="w3-small">Signal to stop  container. Example SIGTERM but can also be an integer.</td></tr>
+  <tr><td>StopTimeout</td><td><input type=text id="StopTimeout" ></input></td>
+  <td class="w3-small">Timeout for stopping container in seconds. Example 20.</td>
+  </tr>
+  <tr><td>Shell</td><td><input type=text id="Shell" ></input></td>
+  <td class="w3-small">Shell. If multiple, separate with comma.</td>
+  </tr>
+
+  <tr><td>HostConfig</td><td valign="top"><textarea  id="HostConfig" rows="12" cols="30"></textarea></td>
+<td class="w3-small">Container configuration. Click on button to generate sample then modify to suit your needs.<br>
+<a id="generateConfigContainer" title="Generate Host Config data" href="#" onclick="generateConfigJyson();return false;"><img alt="Generate Host Config data" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+  </tr>
+  <tr><td>NetworkingConfig</td><td valign="top"><textarea  id="NetworkingConfig" rows="12" cols="30"></textarea></td>
+    <td class="w3-small">Network configuration. Click on button to generate sample then modify to suit your needs.<br>
+    <a id="generateNetworkConfigContainer" title="Generate Network Config data" href="#" onclick="generateNetworkConfigJyson();return false;"><img alt="Generate Network Config data" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+    </td>
+
+  </tr>
+
+</table>
+<br>
+<input class="w3-button w3-black" type="button" value="Submit" onclick="containerOperations('create_container_from_image','{{item.Id}}');return false;">
+</div>
+{% endif %}
+{% if c_activity == "create_container_from_image" %}
+<div style="width:98%">
+<h3>Created container with attributes below:</h3>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+  <tr>
+  <td>
+  Id
+  </td>
+  <td>
+  Names
+  </td>
+  <td>
+  Command
+  </td>
+  <td>
+  Status
+  </td>
+  <td colspan="4">
+
+  </td>
+  </tr>
+{% for p in resp%}
+<tr>
+<td>
+{{p.Id | slice:"0:12"}}
+</td>
+<td>
+{{p.Names}}
+</td>
+<td>
+{{p.Command}}
+</td>
+<td>
+{{p.Status}}
+</td>
+
+<td>
+  <div class="dropdown">
+   <button class="dropbtn">Action</button>
+   <div class="dropdown-content">
+   <a id="InspectContainer" title="Inspect container" href="#" onclick="containerOperations('inspect_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Inspect Container" src="{%static '/images/eye.svg' %}" height="14px" width="14px"> Inspect</a>
+   <a id="restartContainer" title="Restart container" href="#" onclick="containerOperations('restart_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Restart Container" src="{%static '/images/caret-square-right.svg' %}" height="14px" width="14px"> Restart</a>
+   <a id="updateContainer" title="Update container" href="#" onclick="containerOperations('update_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Update Container" src="{%static '/images/edit.svg' %}" height="14px" width="14px"> Update</a>
+   <a id="stopContainer" title="Stop container" href="#" onclick="containerOperations('stop_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Stop Container" src="{%static '/images/stop-circle.svg' %}" height="14px" width="14px"> Stop</a>
+   <a id="renameContainer" title="Rename container" href="#" onclick="containerOperations('rename_container_form','{{p.Id | slice:"0:12"}}');return false;"><img alt="Rename Container" src="{%static '/images/file-alt.svg' %}" height="14px" width="14px"> Rename</a>
+   <a id="pauseContainer" title="Pause container" href="#" onclick="containerOperations('pause_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Pause Container" src="{%static '/images/pause-circle.svg' %}" height="14px" width="14px"> Pause</a>
+   <a id="listProcesses" title="List Processes" href="#" onclick="containerOperations('list_processes','{{p.Id | slice:"0:12"}}');return false;"><img alt="List Processes" src="{%static '/images/lightbulb.svg' %}" height="14px" width="14px"> Processes</a>
+   <a id="filesystemContainer" title="Container Filesystem Changes" href="#" onclick="containerOperations('filesystem_changes','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container filesystem changes" src="{%static '/images/hdd.svg' %}" height="14px" width="14px"> Filesystem</a>
+   <a id="logsContainer" title="Container Logs" href="#" onclick="containerOperations('list_logs','{{p.Id | slice:"0:12"}}');return false;"><img alt="Container Logs" src="{%static '/images/file-code.svg' %}" height="14px" width="14px"> Logs</a>
+   <a id="statsContainer" title="Container Stats" href="#" onclick="containerOperations('container_stats','{{p.Id | slice:"0:12"}}');return false;"> Stats</a>
+   <a id="exportContainer" title="Export Container" href="#" onclick="containerOperations('export_container','{{p.Id | slice:"0:12"}}');return false;"> Export</a>
+   <a id="killContainer" title="Kill container" href="#" onclick="containerOperations('kill_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Kill Container" src="{%static '/images/angry.svg' %}" height="14px" width="14px"> Kill</a>
+   <a id="startContainer" title="Start container" href="#" onclick="containerOperations('start_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Start Container" src="{%static '/images/play-circle.svg' %}" height="14px" width="14px"> Start</a>
+   <a id="pauseContainer" title="Pause container" href="#" onclick="containerOperations('pause_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Pause Container" src="{%static '/images/pause-circle.svg' %}" height="14px" width="14px"> Pause</a>
+   <a id="stopContainer" title="Stop container" href="#" onclick="containerOperations('stop_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Stop Container" src="{%static '/images/stop-circle.svg' %}" height="14px" width="14px"> Stop</a>
+   <a id="deleteContainer" title="Delete container" href="#" onclick="containerOperations('delete_container','{{p.Id | slice:"0:12"}}');return false;"><img alt="Delete Container" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"> Delete</a>
+
+
+
+   </div>
+  </div>
+  </td>
+
+
+</tr>
+{%endfor%}
+</table>
+<br><br>
+<strong>Find below response from docker.</strong><br>
+
+{{content}}
+</div>
+{% endif %}

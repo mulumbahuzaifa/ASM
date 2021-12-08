@@ -1,0 +1,199 @@
+{% load static %}
+
+{% if c_activity == "create_volume" %}
+<div style="width:98%;overflow:auto;">
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Response from docker on creating volume.
+    </div>
+<pre id="pre_create_volumes">{{full_response}}</pre>
+</div>
+{%endif%}
+
+{% if c_activity == "inspect_volume" %}
+<div style="width:98%;overflow:auto;">
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Response from docker on inspecting volume.
+    </div>
+<pre id="pre_inspect_volumes">{{full_response}}</pre>
+</div>
+{%endif%}
+
+
+
+
+<div style="width:98%;overflow:auto;">
+{% if c_activity == "delete_volume"  %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Response from docker on delete. {{response_code}}
+    </div>
+
+{% if response_code == 204 %}
+The volume was removed.
+{% elif response_code == 409 %}
+Volume in use and cannot be removed.
+{% elif response_code == 404 %}
+No such volume or volume driver.
+{%else%}
+Done<br>
+<pre id="pre_volumes_response">{{orig_response}}</pre>
+{% endif %}
+
+{%endif%}
+
+{% if c_activity == "delete_unused" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Response from docker on delete.
+    </div>
+
+{% if response_code == 204 %}
+The volume was removed
+{% endif %}
+
+<pre id="pre_volumes_response">{{orig_response}}</pre>
+
+{%endif%}
+
+</div>
+
+{% if c_activity == "list_volumes" %}
+<div style="width:98%;overflow:auto;">
+
+
+{%if dict_len > 0%}
+
+  <div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+      Volumes List.
+      </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata-volumes">
+<thead>
+<tr>
+<th>
+  Name
+</th>
+<th>
+Created
+</th>
+<th>
+Mountpoint
+</th>
+<th>
+Scope
+</th>
+<th>
+</th>
+<th>
+</th>
+</tr>
+</thead>
+{%for key,value in vol_dict.items%}
+{%if key == 'Volumes' %}
+{%for item in value%}
+<tr>
+<td>
+{{item.Name}}
+</td>
+<td>
+{{item.CreatedAt}}
+</td>
+<td>
+{{item.Mountpoint}}
+</td>
+<td>
+{{item.Scope}}
+</td>
+<td>
+<a id="inspect_volume" title="Inspect Volume" href="#" onclick="containerOperations('inspect_volume','{{item.Name}}');return false;"><img alt="Inspect Volume" src="{%static '/images/eye.svg' %}" height="14px" width="14px"></a>
+</td>
+<td>
+<a id="delete_volume" title="Delete Volume" href="#" onclick="containerOperations('delete_volume','{{item.Name}}');return false;"><img alt="Delete Volume" src="{%static '/images/trash-alt.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+{%endfor%}
+{%endif%}
+{%endfor%}
+</table>
+{%else%}
+<strong><h3>No volumes available. You can <a href="#" title="Create volume" id="create_volume"  onclick="containerOperations('create_volume_form','none');return false;"> Create </a> a volume.
+</h3></strong>
+{%endif%}
+</div>
+{%endif%}
+
+
+{% if c_activity == "create_volume_form" %}
+<div style="width:98%;overflow:auto;">
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Create volume.
+    </div>
+
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+<tr>
+<td>
+<label id="lbl_create_volume">Name </label>
+</td>
+<td colspan=2>
+<input type="text" id="txt_volume_name">
+</td>
+</tr>
+<tr>
+<td>
+<label id="lbl_driver_volume">Driver </label>
+</td>
+<td>
+<input type="text" id="txt_driver_name" value="local">
+</td>
+<td class="w3-small">
+Default driver is local. Leave as is if you are not sure.
+</td>
+</tr>
+<tr>
+<td>
+<label id="lbl_driver_opts ">DriverOpts </label>
+</td>
+<td>
+<textarea id="txt_driver_opts" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+Driver options and values. If you are not sure, leave blank. Here is example for NFS on cloud.
+<pre>
+  {
+    "type": "nfs",
+    "device": "fsid123456.amazonaws.com:/",
+    "o": "addr=fsid123456.amazonaws.com,nfsvers=4.0,rsize=4096,wsize=4096,hard,timeo=300,retrans=3"
+  }
+</pre>
+<br>
+<a id="generateDriverOpts" title="Generate DriverOpts" href="#" onclick="generateDriverOpts();return false;"><img alt="Generate DriverOpts data" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+<tr>
+<td>
+<label id="lbl_label_opts ">Labels</label>
+</td>
+<td>
+<textarea id="txt_label_opts" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+Key/Value metadata. If you are not sure, leave blank. Here is example.
+<pre>
+  {
+    "storage_type": "nfs",
+    "application": "To be used with MySQL database",
+    "owner": "African Software Group"
+  }
+</pre>
+<br>
+<a id="generateLabels" title="Generate Label" href="#" onclick="generateVolumeLabels();return false;"><img alt="Generate Volume Labels" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+
+<tr>
+<td colspan="3">
+<input class="w3-button w3-black" id="btn_create_volume" type="button" value="Submit" onclick="containerOperations('create_volume','none');return false;">
+</td>
+</tr>
+</table>
+{%endif%}
+</div>

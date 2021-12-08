@@ -1,0 +1,32 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>dcc</title>
+<link href="{%static '/css/main.css' %}" rel="stylesheet" type="text/css">
+<head>
+<body>
+	<div class="wrap">
+		<div class="header">
+			{% if user.is_authenticated %}
+			  Welcome {{ user.username }}<br>
+				 <p><a href="{% url 'logout' %}">logout</a></p>
+			{% else %}
+			  <p>You are not logged in</p>
+			  <a href="{% url 'login' %}">login</a>
+			{% endif %}
+
+		</div>
+		<div class="nav">nav</div>
+		<div class="container">
+			<div class="left"></div>
+			<div class="right"></div>
+			<div class="clear"></div>
+		</div>
+		<div class="footer">footer</div>
+	</div>
+</div>
+</body>
+</html>

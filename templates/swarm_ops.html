@@ -1,0 +1,636 @@
+{% load static %}
+<div style="width:98%;overflow:auto;">
+{% if c_activity == "unlock_manager" %}
+{% if http_resp_code == 200 %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Response from docker.
+    </div>
+{{full_response}}
+{%endif%}
+
+
+{% if http_resp_code == 500 %}
+Server error.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 503 %}
+Node is not part of a swarm.<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+
+
+{% if c_activity == "get_the_unlock_key" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Get the unlock key.
+    </div>
+{% if http_resp_code == 200 %}
+Done.<br>
+{{full_response}}
+{%endif%}
+
+
+{% if http_resp_code == 500 %}
+Server error.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 503 %}
+Node is not part of a swarm.<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+
+{% if c_activity == "update_swarm" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Update swarm.
+    </div>
+{% if http_resp_code == 200 %}
+Response from docker.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 400 %}
+Bad parameter<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 500 %}
+Server error.<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+{% if c_activity == "leave_swarm" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Leave swarm.
+    </div>
+{% if http_resp_code == 200 %}
+Response from docker.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 500 %}
+Server error.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 503 %}
+Node is not part of a swarm.<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+{% if c_activity == "join_existing_swarm" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Join existing swarm.
+    </div>
+{% if http_resp_code == 200 %}
+Response from docker.<br>
+{{full_response}}
+{%endif%}
+{% if http_resp_code == 400 %}
+Bad parameter.<br>
+{{full_response}}
+{%endif%}
+{% if http_resp_code == 500 %}
+Server error.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 503 %}
+Node is already part of a swarm.<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+
+{% if c_activity == "initialize_new_swarm" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Initialize new swarm.
+    </div>
+{% if http_resp_code == 200 %}
+Done.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 400 %}
+ Bad parameter.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 500 %}
+Server error.<br>
+{{full_response}}
+{%endif%}
+
+{% if http_resp_code == 503 %}
+Node is already part of a swarm.<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+{% if c_activity == "inspect_swarm" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Inspect swarm.
+    </div>
+<!--pre id="pre_create_volumes">{{full_response}}</pre-->
+{%if dict_len > 1 and code == 200 %}
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="table-layout:fixed">
+
+{%for key,value in swarm_dict.items%}
+<tr>
+<td width="20%">
+<strong>{{key}}</strong>
+</td>
+<td style="word-wrap:break-word" width="80%">
+
+
+{{value}}
+
+</td>
+</tr>
+{%endfor%}
+
+</table>
+{%else%}
+
+
+{%if code == 404 %}
+No such swarm.<br>
+{%endif%}
+
+{%if code == 500 %}
+Server error.
+{%endif%}
+
+{%if code == 503 %}
+Node is not part of a swarm.
+{%endif%}
+
+{%endif%}
+{%endif%}
+
+
+
+{% if c_activity == "leave_swarm_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Leave swarm.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border  w3-white" id="contdata">
+  <tr><td>Force leaving swarm.</td><td><label>No</label>
+    <input type="radio" checked="checked" name="ForceLeaveSwarm" value="false"><label>Yes</label>
+    <input type="radio" name="ForceLeaveSwarm" value="true"></td>
+    <td class="w3-small">Force leaving swarm, even if this is the last manager or that it will break the cluster.</td>
+  </tr>
+  <tr>
+  <td colspan="3">
+  <input class="w3-button w3-black" id="btn_leave_swarm" type="button" value="Submit" onclick="containerOperations('leave_swarm','none');return false;">
+  </td>
+  </tr>
+  </table>
+  {%endif%}
+
+
+{% if c_activity == "unlock_manager_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Unlock a locked manager.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+  <tr>
+  <td>
+  <label id="lbl_unlock_key"><strong>Unlock key</strong> </label>
+  </td>
+  <td>
+  <input type="text" id="txt_unlock_key">
+  </td>
+  <td class="w3-small">
+  The unlock key for the swarm.  </td>
+  </tr>
+  <tr>
+  <td colspan="3">
+  <input class="w3-button w3-black" id="btn_unlock_key" type="button" value="Submit" onclick="containerOperations('unlock_manager','none');return false;">
+  </td>
+  </tr>
+  </table>
+  {%endif%}
+
+{% if c_activity == "join_existing_swarm_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Join existing swarm.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+  <tr>
+  <td width="20%">
+  <label id="lbl_listen_address">Listen address </label>
+  </td>
+  <td>
+  <input type="text" id="txt_listen_address">
+  </td>
+  <td class="w3-small">
+  According to docker API docs, listen address is used for inter-manager communication, as well as determining the networking interface used for the VXLAN Tunnel Endpoint (VTEP). If port is ommitted, default swarm listening port is used. Can be ip/port or interface/port combination. Example 192.168.100.10:4567 or eth0:4567
+  </td>
+  </tr>
+
+
+
+  <tr>
+  <td>
+  <label id="lbl_advertise_address"><strong>Advertise address</strong> </label>
+  </td>
+  <td>
+  <input type="text" id="txt_advertise_address">
+  </td>
+  <td class="w3-small">
+  Externally reachable address advertised to other nodes. Can be ip/port or interface/port combination. Example 192.168.100.10:4567 or eth0:4567
+  </td>
+  </tr>
+
+
+  <tr>
+  <td>
+  <label id="lbl_data_path_address">Data path address </label>
+  </td>
+  <td>
+  <input type="text" id="txt_data_path_address">
+  </td>
+  <td class="w3-small">
+  Address or interface to use for data path traffic. Example 192.168.100.11 or eth0. If ommitted,  Advertise address is used.
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_remote_address"> Remote addresses</label>
+  </td>
+  <td>
+  <input type="text" id="txt_remote_address">
+  </td>
+  <td class="w3-small">
+   Addresses of manager nodes already participating in the swarm. Example ["192.168.100.2","192.168.100.4"] </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_join_token"> <strong>Join token</strong></label>
+  </td>
+  <td>
+  <input type="text" id="txt_join_token">
+  </td>
+  <td class="w3-small">
+    Secret token for joining the swarm.
+  </tr>
+
+<tr>
+<td colspan="3">
+<input class="w3-button w3-black" id="btn_join_swarm" type="button" value="Submit" onclick="containerOperations('join_existing_swarm','none');return false;">
+</td>
+</tr>
+</table>
+{%endif%}
+
+
+
+
+{% if c_activity == "update_swarm_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Update swarm.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+  <tr>
+  <td width="20%">
+  <label id="lbl_swarm_version"><strong>Version</strong> </label>
+  </td>
+  <td>
+  <input type="text" id="txt_swarm_version">
+  </td>
+  <td class="w3-small">
+  Version number of the swarm object being updated.
+  </td>
+  </tr>
+
+  <tr><td>Rotate worker join token.</td><td><label>No</label>
+    <input type="radio" checked="checked" name="rotateWorkerToken" value="false"><label>Yes</label>
+    <input type="radio" name="rotateWorkerToken" value="true"></td>
+    <td class="w3-small"></td>
+  </tr>
+
+  <tr><td>Rotate manager join token.</td><td><label>No</label>
+    <input type="radio" checked="checked" name="rotateManagerToken" value="false"><label>Yes</label>
+    <input type="radio" name="rotateManagerToken" value="true"></td>
+    <td class="w3-small"></td>
+  </tr>
+
+
+  <tr><td>Rotate manager unlock key.</td><td><label>No</label>
+    <input type="radio" checked="checked" name="rotateManagerUnlockKey" value="false"><label>Yes</label>
+    <input type="radio" name="rotateManagerUnlockKey" value="true"></td>
+    <td class="w3-small"></td>
+  </tr>
+
+
+  <tr>
+  <td>
+  <label id="lbl_swarm_name">Name of swarm.</label>
+  </td>
+  <td>
+  <input type="text" id="txt_swarm_name">
+  </td>
+  <td class="w3-small">
+  </td>
+  </tr>
+
+
+
+  <tr>
+  <td>
+  <label id="lbl_swarm_labels">Labels </label>
+  </td>
+  <td>
+  <textarea id="txt_swarm_labels" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  according to docker API doc, this is user-defined key/value metadata.
+  <pre>
+    {
+    "organization": "African Software Group",
+    "department": "Sales"
+    }
+  </pre>
+  <br>
+  <a id="generate_swarm_label" title="Generate Swarm Label" href="#" onclick="generateSwarmLabel('txt_swarm_labels');return false;"><img alt="Generate Swarm Labels" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+<tr>
+<td>
+<label id="lbl_swarm_orchestration">Orchestration </label>
+</td>
+<td>
+<textarea id="txt_swarm_orchestration" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+Orchestration configuration. This is number of historic tasks to keep per instance or node and if negative, never remove completed or failed tasks. Example.
+<pre>
+{
+"TaskHistoryRetentionLimit": 10
+}
+</pre>
+<br>
+<a  title="Orchestration" href="#" onclick="generateOrchestration('txt_swarm_orchestration');return false;"><img alt="Generate Orchestration" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+<tr>
+<td>
+<label id="lbl_swarm_raft_configuration">Raft configuration</label>
+</td>
+<td>
+<textarea id="txt_swarm_raft_configuration" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+Raft configuration. Controls number of log entries between snapshots, keeping of old snapshots e.t.c. Example.
+<pre>
+  {
+  "SnapshotInterval": 10000,
+  "KeepOldSnapshots": 0,
+  "LogEntriesForSlowFollowers": 500,
+  "ElectionTick": 3,
+  "HeartbeatTick": 1
+  }
+</pre>
+<br>
+<a  title="Raft configuration" href="#" onclick="generateRaft('txt_swarm_raft_configuration');return false;"><img alt="Generate Raft configuration" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+
+<tr>
+<td>
+<label id="lbl_swarm_dispatcher">Dispatcher configuration</label>
+</td>
+<td>
+<textarea id="txt_swarm_dispatcher" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+Controls delay for an agent to send a heartbeat to the dispatcher. Example.
+<pre>
+  {
+  "HeartbeatPeriod": 5000000000
+  }
+</pre>
+<br>
+<a  title="Dispatcher configuration" href="#" onclick="generateDispatcher('txt_swarm_dispatcher');return false;"><img alt="Generate Dispatcher configuration" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+<tr>
+<td>
+<label id="lbl_swarm_caconfig">CAConfig </label>
+</td>
+<td>
+<textarea id="txt_swarm_caconfig" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+Controls duration node certificates are issued e.t.c. Example.
+<pre>
+  {
+  "NodeCertExpiry": 7776000000000000,
+  "ExternalCAs": [
+  {
+  "Protocol": "cfssl",
+  "URL": "string",
+  "Options": {
+  "property1": "string",
+  "property2": "string"
+  },
+  "CACert": "string"
+  }
+  ],
+  "SigningCACert": "string",
+  "SigningCAKey": "string",
+  "ForceRotate": 0
+  }
+</pre>
+<br>
+<a  title="CAConfig configuration" href="#" onclick="generateCAConfig('txt_swarm_caconfig');return false;"><img alt="Generate CAConfig configuration" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+
+<tr>
+<td>
+<label id="lbl_swarm_encryption_config">EncryptionConfig </label>
+</td>
+<td>
+<textarea id="txt_swarm_encryption_config" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+According to docker API doc, if set, generate a key and use it to lock data stored on the managers. Example.
+<pre>
+  {
+  "AutoLockManagers": false
+  }
+</pre>
+<br>
+<a  title="EncryptionConfig configuration" href="#" onclick="generateEncryptionConfig('txt_swarm_encryption_config');return false;"><img alt="Generate EncryptionConfig configuration" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+
+<tr>
+<td>
+<label id="lbl_swarm_task_defaults">TaskDefaults </label>
+</td>
+<td>
+<textarea id="txt_swarm_task_defaults" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+Defaults for creating tasks in this cluster. Example.
+<pre>
+  {
+  "LogDriver": {
+  "Name": "json-file",
+  "Options": {
+  "max-file": "10",
+  "max-size": "100m"
+  }
+  }
+  }
+</pre>
+<br>
+<a  title="EncryptionConfig configuration" href="#" onclick="generateTaskDefaults('txt_swarm_task_defaults');return false;"><img alt="Generate EncryptionConfig configuration" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+<tr>
+<td colspan="3">
+<input class="w3-button w3-black" id="btn_update_swarm" type="button" value="Submit" onclick="containerOperations('update_swarm','none');return false;">
+</td>
+</tr>
+</table>
+{%endif%}
+
+{% if c_activity == "initialize_new_swarm_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Initialize new swarm.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata">
+  <tr>
+  <td width="20%">
+  <label id="lbl_listen_address">Listen address </label>
+  </td>
+  <td>
+  <input type="text" id="txt_listen_address">
+  </td>
+  <td class="w3-small">
+  According to docker API docs, listen address is used for inter-manager communication, as well as determining the networking interface used for the VXLAN Tunnel Endpoint (VTEP). If port is ommitted, default swarm listening port is used. Can be ip/port or interface/port combination. Example 192.168.100.10:4567 or eth0:4567
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_advertise_address"><strong>Advertise address</strong> </label>
+  </td>
+  <td>
+  <input type="text" id="txt_advertise_address">
+  </td>
+  <td class="w3-small">
+  Externally reachable address advertised to other nodes. Can be ip/port or interface/port combination. Example 192.168.100.10:4567 or eth0:4567
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_data_path_address">Data Path Address </label>
+  </td>
+  <td>
+  <input type="text" id="txt_data_path_address">
+  </td>
+  <td class="w3-small">
+  Address or interface to use for data path traffic. Example 192.168.100.11 or eth0. If ommitted,  Advertise address is used.
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_data_path_port"> Data path port </label>
+  </td>
+  <td>
+  <input  id="txt_data_path_port" type="number">
+  </td>
+  <td class="w3-small">
+  According to docker API docs, it specifies the data path port number for data traffic. Acceptable port range is 1024 to 49151. if no port is set or is set to 0, default port 4789 will be used.
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_subnet_pools"> Default Address Pool </label>
+  </td>
+  <td>
+  <input type="text" id="txt_subnet_pools">
+  </td>
+  <td class="w3-small">
+   Specifies default subnet pools for global scope networks. Example ["10.10.0.0/8","20.20.0.0/8"] </td>
+  </tr>
+
+  <tr><td>Force creation of swarm.</td><td><label>No</label>
+    <input type="radio" checked="checked" name="ForceNewCluster" value="false"><label>Yes</label>
+    <input type="radio" name="ForceNewCluster" value="true"></td>
+    <td class="w3-small">Force creation of a new swarm.</td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_subnet_size"> Subnet size </label>
+  </td>
+  <td>
+  <input  id="txt_subnet_size" type="number">
+  </td>
+  <td class="w3-small">
+  Subnet size of the networks created from the default subnet pool. Example 24.  </td>
+  </tr>
+
+<tr>
+<td>
+<label id="lbl_swarm_spec">Spec </label>
+</td>
+<td>
+<textarea id="txt_swarm_spec" rows="12" cols="30" style="display:block;"></textarea>
+</td>
+<td class="w3-small">
+User modifiable swarm configuration. Check docker API doc for more options. Example.
+<pre>
+   {
+  "Orchestration": { },
+  "Raft": { },
+  "Dispatcher": { },
+  "CAConfig": { },
+  "EncryptionConfig": {
+  "AutoLockManagers": false
+  }
+  }
+</pre>
+<br>
+<a id="generate_swarm_spec" title="Generate Swarm Spec" href="#" onclick="generateSwarmSpec('txt_swarm_spec');return false;"><img alt="Generate Swarm Spec" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+</td>
+</tr>
+
+<tr>
+<td colspan="3">
+<input class="w3-button w3-black" id="btn_initialize_new_swarm_form" type="button" value="Submit" onclick="containerOperations('initialize_new_swarm','none');return false;">
+</td>
+</tr>
+</table>
+{%endif%}
+</div>

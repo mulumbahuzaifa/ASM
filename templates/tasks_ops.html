@@ -1,0 +1,320 @@
+{% load static %}
+
+{% if c_activity == "view_log_task" %}
+{% if http_resp_code == 200 %}
+{%if len_resp >= 1 %}
+<h3>Log for service with ID {{c_parameter}}</h3>.<br>
+{{full_response}}
+{%else%}
+Currently no log for service with ID {{c_parameter}}.<br>
+{%endif%}
+
+</h3><br>
+{% elif http_resp_code == 404 %}
+<h3>
+No such task.
+</h3><br>
+{{full_response}}
+{% elif http_resp_code == 500 %}
+<h3>
+Server error.
+</h3><br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+<h3>
+Node is not part of a swarm.
+</h3><br>
+{{full_response}}
+{%else%}
+<h3>
+An error occured.
+</h3><br>
+{{full_response}}
+{%endif%}
+{%endif%}
+
+{% if c_activity == "view_log_task_form" %}
+<h3>Get task logs</h3><br>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="table-layout:fixed">
+  <tr><td width="20%">Details</td><td><label>No</label>
+      <input type="radio" checked="checked" name="details" value="false"><label>Yes</label>
+      <input type="radio" name="details" value="true"></td>
+      <td class="w3-small">As per docker API doc, show task context and extra details provided to logs.</td>
+  </tr>
+
+  <tr><td width="20%">Follow</td><td><label>No</label>
+      <input type="radio" checked="checked" name="follow" value="false"><label>Yes</label>
+      <input type="radio" name="follow" value="true"></td>
+      <td class="w3-small">Keep connection after returning logs.</td>
+  </tr>
+
+  <tr><td width="20%">Stdout</td><td><label>No</label>
+      <input type="radio" checked="checked" name="stdout" value="false"><label>Yes</label>
+      <input type="radio" name="stdout" value="true"></td>
+      <td class="w3-small">Return logs from stdout.</td>
+  </tr>
+
+  <tr><td width="20%">Stderr</td><td><label>No</label>
+      <input type="radio" checked="checked" name="stderr" value="false"><label>Yes</label>
+      <input type="radio" name="stderr" value="true"></td>
+      <td class="w3-small">Return logs from stderr.</td>
+  </tr>
+
+  <tr><td width="20%">Timestamps</td><td><label>No</label>
+      <input type="radio" checked="checked" name="timestamps" value="false"><label>Yes</label>
+      <input type="radio" name="timestamps" value="true"></td>
+      <td class="w3-small">Add timestamps to every log line.</td>
+  </tr>
+
+  <tr>
+  <td width="15%">
+  <label>Tail</label>
+  </td>
+  <td>
+  <input type="text" id="txt_tail">
+  </td>
+  <td class="w3-small">
+  As per docker API docs, only return this number of log lines from the end of the logs. Specify as an integer or all to output all log lines.
+  </td>
+  </tr>
+<tr>
+<td colspan="3">
+  <input class="w3-button w3-black"  type="button" value="Submit" onclick="containerOperations('view_log_task','{{c_parameter}}');return false;">
+</td>
+<tr>
+</table>
+{%endif%}
+
+{% if c_activity == "inspect_task" %}
+
+{% if http_resp_code == 200 %}
+<h3>
+Inspecting task with ID <strong>{{task_id}}</strong>.<br>
+</h3><br>
+{%if dict_len > 1 %}
+<table class="w3-table w3-striped w3-bordered w3-border w3-white" id="contdata" style="table-layout:fixed">
+{%for key,value in resp_dict.items%}
+
+  {%if key == 'ID'%}
+  <tr>
+  <td width="20%">
+  <strong>{{key}}</strong>
+  </td>
+<td>
+{{value}}
+<input id="txt_swarm_task_id" type="text" value="{{value}}" hidden>
+</td> 
+  
+ <td width="10%">
+</td>
+<td width="10%">
+<a href="#" title="View log"  style="text-decoration:none;" onclick="containerOperations('view_log_task_form','{{value}}');return false;"><img src="{%static '/images/file-code-colored.png' %}" style="width:20px;height:20px;"></a>
+</td>
+
+<td width="10%">
+</td>
+</tr>
+{%endif%}
+  
+
+  
+  {%if key == 'Version'%}
+      <tr>
+<td width="20%">
+  <strong>{{key}}</strong>
+  </td>
+  
+ <td colspan="4">
+{{value.Index}}
+<input id="txt_swarm_task_version" type="text" value="{{value.Index}}" hidden>
+</td>
+</tr>
+  
+  {%endif%}
+  
+
+  
+  {%if key == 'Spec'%}
+      <tr>
+<td width="20%">
+  <strong>Image</strong>
+  </td>
+    <td colspan="4">
+  {{value.ContainerSpec.Image}}
+  </td>
+  </tr>
+  {%endif%}
+
+
+
+
+  {%if key == 'CreatedAt'%}
+      <tr>
+<td width="20%">
+  <strong>Created At</strong>
+  </td>
+ <td colspan="4">
+  {{value}}
+  </td>
+  </tr>
+  {%endif%}
+
+
+
+  {%if key == 'UpdatedAt'%}
+      <tr>
+<td width="20%">
+  <strong>Updated At</strong>
+  </td>
+  <td colspan="4">
+  {{value}}
+  </td>
+  </tr>
+  {%endif%}
+
+{%endfor%}
+</table>
+
+
+<table class="w3-table w3-striped w3-bordered w3-border w3-white" id="contdata" style="table-layout:fixed">
+<tr>
+<td colspan="5">
+<strong>All Data.</strong>
+</td>
+</tr>
+<tr>
+<td colspan="5">
+<pre id="pre_inspect_task">
+{{full_response}}
+</pre>
+</td>
+</tr>
+</table>
+
+
+{%endif%}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% elif http_resp_code == 404 %}
+<h3>
+No such task.
+</h3><br>
+{{full_response}}
+{% elif http_resp_code == 500 %}
+<h3>
+Server error.
+</h3><br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+<h3>
+Node is not part of a swarm.
+</h3><br>
+{{full_response}}
+{%else%}
+<h3>
+An error occured.
+</h3><br>
+{{full_response}}
+{%endif%}
+
+
+{%endif%}
+
+
+{% if c_activity == "list_tasks" %}
+{% if http_resp_code == 200 %}
+
+{%if dict_len >= 1%}
+
+<h3>
+Tasks  List.
+</h3><br>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="table-layout:fixed">
+<tr>
+  <th width="70px">
+No
+  </th>
+<th width="210px">ID</th>
+<th width="80px">Version</th>
+<th width="150px">Created At</th>
+<th width="150px">Updated At</th>
+<th>
+Image
+</th>
+</tr>
+{%for item in resp_dict%}
+{%with ctr=forloop.counter %}
+<tr>
+<td>
+{{ctr}}
+</td>
+{%for key,value in item.items%}
+{%if key == 'ID' %}
+<td>
+<a href="#" title="Inspect"  onclick="containerOperations('inspect_task','{{value}}');return false;"> {{value}}</a>
+</td>
+{%endif%}
+{%if key == 'Version' %}
+<td>
+{{value.Index}}
+</td>
+{%endif%}
+{%if key == 'CreatedAt' %}
+<td>
+{{value | slice:"0:16"}}
+</td>
+{%endif%}
+{%if key == 'UpdatedAt' %}
+<td>
+{{value | slice:"0:16"}}
+</td>
+{%endif%}
+
+{%if key == 'Spec' %}
+<td style="word-wrap:break-word">
+{{value.ContainerSpec.Image}}
+</td>
+{%endif%}
+{%endfor%}
+{%endwith%}
+</tr>
+{%endfor%}
+</table>
+{%else%}
+<h3>
+No tasks available.<br>
+</h3>
+{%endif%}
+
+{% elif http_resp_code == 500 %}
+<h3>
+Server error.
+</h3><br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+<h3>
+Node is not part of a swarm.
+</h3><br>
+{{full_response}}
+{%else%}
+<h3>
+An error occured.
+</h3><br>
+{{full_response}}
+{%endif%}
+{%endif%}

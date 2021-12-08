@@ -1,0 +1,804 @@
+{% load static %}
+<div style="width:98%;overflow:auto;">
+{% if c_activity == "create_new_service" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Create new service.
+    </div>
+{% if http_resp_code == 201 %}
+<font color="green">Service with ID <strong>{{dict_resp.ID}}</strong> created.</font>
+<a href="#" title="Inspect" id="inspect_service" onclick="containerOperations('inspect_service','{{dict_resp.ID}}');return false;"> Inspect</a>
+<br>
+Response from docker.
+{{full_response}}
+{% elif http_resp_code == 400 %}
+Bad parameter.
+<br>
+{{full_response}}
+{% elif http_resp_code == 403 %}
+Network is not eligible for services.
+<br>
+{{full_response}}
+{% elif http_resp_code == 409 %}
+Name conflicts with an existing service
+<br>
+{{full_response}}
+{% elif http_resp_code == 500 %}
+Server error.
+<br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+Node is not part of a swarm.
+<br>
+{{full_response}}
+{%else%}
+An error occured.
+<br>
+{{full_response}}
+{%endif%}
+{%endif%}
+
+
+{% if c_activity == "list_services" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    List Services.
+    </div>
+{% if http_resp_code == 200 %}
+
+{% if dict_len >= 1 %}
+Services list.
+<br>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="table-layout:fixed">
+<tr>
+  <th width="70px">
+No
+  </th>
+<th width="210px">ID</th>
+<th width="80px">Version</th>
+<th width="150px">Created At</th>
+<th width="150px">Updated At</th>
+<th width="150px">
+Name
+</th>
+<th>
+Image
+</th>
+</tr>
+{%for item in resp_dict%}
+{%with ctr=forloop.counter %}
+<tr>
+<td>
+{{ctr}}
+</td>
+{%for key,value in item.items%}
+{%if key == 'ID' %}
+<td>
+<a href="#" title="Inspect" id="inspect_node"  onclick="containerOperations('inspect_service','{{value}}');return false;"> {{value}}</a>
+</td>
+{%endif%}
+{%if key == 'Version' %}
+<td>
+{{value.Index}}
+</td>
+{%endif%}
+{%if key == 'CreatedAt'%}
+<td>{{value | slice:"0:16"}}</td>
+{%endif%}
+{%if key == 'UpdatedAt'%}
+<td>{{value | slice:"0:16"}}</td>
+{%endif%}
+{%if key == 'Spec'%}
+<td>{{value.Name}}</td>
+<td style="word-wrap:break-word">{{value.TaskTemplate.ContainerSpec.Image}}</td>
+{%endif%}
+{%endfor%}
+</tr>
+{%endwith%}
+{%endfor%}
+</table>
+
+{%else%}
+There are no services.
+{%endif%}
+{% elif http_resp_code == 500 %}
+Server error.
+<br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+Node is not part of a swarm.
+<br>
+{{full_response}}
+{%else%}
+An error occured.
+<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+
+{% if c_activity == "create_service_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Create a new service.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="table-layout:fixed">
+  <tr>
+  <td width="15%">
+  <label id="lbl_service_name">Name of service.</label>
+  </td>
+  <td>
+  <input type="text" id="txt_service_name">
+  </td>
+  <td class="w3-small">
+  </td>
+  </tr>
+  <tr>
+  <td>
+  <label id="lbl_service_labels">Labels </label>
+  </td>
+  <td>
+  <textarea id="txt_service_labels" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  According to docker API doc, this is user-defined key/value metadata.
+  <pre>
+    {
+    "organization": "African Software Group",
+    "department": "Sales"
+    }
+  </pre>
+  <br>
+  <a id="a_service_labels" title="Generate Service Label" href="#" onclick="generateSwarmLabel('txt_service_labels');return false;"><img alt="Generate Service Labels" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_task_template"><strong>Task Template </strong></label>
+  </td>
+  <td>
+  <textarea id="txt_task_template" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  User modifiable task configuration. Example.
+  <pre>
+{
+  "ContainerSpec": {
+  "Image": "redis"
+},
+  "Resources": {
+  "Limits": { },
+  "Reservations": { }
+},
+  "RestartPolicy": {
+  "Condition": "any",
+  "MaxAttempts": 0
+},
+  "Placement": { },
+  "ForceUpdate": 0
+}
+  </pre>
+
+  <br>
+  <a id="generate_task_template" title="Generate Task Template" href="#" onclick="generateTaskTemplate('txt_task_template');return false;"><img alt="Generate Task Template" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_scheduling_mode">Mode </label>
+  </td>
+  <td>
+  <textarea id="txt_scheduling_mode" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  According to docker API doc, this scheduling mode for the service.
+  <pre>
+    {
+    "Replicated": {
+    "Replicas": 4
+    }
+    }
+  </pre>
+  <br>
+  <a id="generate_scheduling_mode" title="Generate Scheduling Mode" href="#" onclick="generateSchedulingMode('txt_scheduling_mode');return false;"><img alt="Generate Scheduling Mode" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+
+  <tr>
+  <td>
+  <label id="lbl_update_config">Update Config </label>
+  </td>
+  <td>
+  <textarea id="txt_update_config" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  Specification for the update strategy of the service.
+  <pre>
+    {
+    "Parallelism": 2,
+    "Delay": 1000000000,
+    "FailureAction": "pause",
+    "Monitor": 15000000000,
+    "MaxFailureRatio": 0.15
+    }
+  </pre>
+  <br>
+  <a id="service_update_config" title="Update Config" href="#" onclick="generateServiceUpdateConfig('txt_update_config');return false;"><img alt="Update Config" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_rollback_config">Rollback Config </label>
+  </td>
+  <td>
+  <textarea id="txt_rollback_config" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  Specification for the rollback strategy of the service.
+  <pre>
+  {
+  "Parallelism": 1,
+  "Delay": 1000000000,
+  "FailureAction": "pause",
+  "Monitor": 15000000000,
+  "MaxFailureRatio": 0.15
+  }
+  </pre>
+  <br>
+  <a id="service_rollback_config" title="Rollback Config" href="#" onclick="generateServiceRollBackConfig('txt_rollback_config');return false;"><img alt="Rollabck Config" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_service_network">Networks </label>
+  </td>
+  <td>
+  <textarea id="txt_service_network" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  According to docker API docs, this is an Array of NetworkAttachmentConfig  Specifies which networks the service should attach to.
+  <pre>
+
+  </pre>
+  <br>
+  <!--a id="service_service_network" title="Network Config" href="#" onclick="generateServiceNetworkConfig('txt_service_network');return false;"><img alt="Rollabck Config" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a-->
+  </td>
+  </tr>
+
+
+
+  <tr>
+  <td>
+  <label id="lbl_endpoint_specification">Endpoint Specification </label>
+  </td>
+  <td>
+  <textarea id="txt_endpoint_specification" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  Properties that can be configured to access and load balance a service. Example from docker API doc.
+  <pre>
+    {
+    "Ports": [
+    {
+    "Protocol": "tcp",
+    "PublishedPort": 8080,
+    "TargetPort": 80
+    }
+    ]
+    }
+  </pre>
+  <br>
+  <a id="service_endpoint_specification" title="Endpint Spec" href="#" onclick="generateServiceEndPointSpec('txt_endpoint_specification');return false;"><img alt="EndPoint Spcec" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+  <tr>
+  <td colspan="3">
+  <input class="w3-button w3-black" id="btn_create_service" type="button" value="Submit" onclick="containerOperations('create_new_service','none');return false;">
+  </td>
+  </tr>
+</table>
+{%endif%}
+
+
+
+
+{% if c_activity == "inspect_service" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Inspect service.
+    </div>
+{% if http_resp_code == 200 %}
+{%if dict_len > 1 %}
+<table class="w3-table w3-striped w3-bordered w3-border w3-white" id="contdata" style="table-layout:fixed">
+{%for key,value in resp_dict.items%}
+<tr>
+<td width="20%">
+  {%if key == 'ID'%}
+  <strong>{{key}}</strong>
+  {%endif%}
+  {%if key == 'Spec'%}
+  <strong>Name</strong>
+  {%endif%}
+
+  {%if key == 'Version'%}
+  <strong>{{key}}</strong>
+  {%endif%}
+
+
+  {%if key == 'CreatedAt'%}
+  <strong>Created At</strong>
+  {%endif%}
+
+  {%if key == 'UpdatedAt'%}
+  <strong>Updated At</strong>
+  {%endif%}
+
+
+</td>
+<td style="word-wrap:break-word" width="60%" colspan="4">
+
+  {%if key == 'Spec'%}
+  {{value.Name}}
+  {%endif%}
+
+{%if key == 'Version'%}
+{{value.Index}}
+<input id="txt_swarm_service_version" type="text" value="{{value.Index}}" hidden>
+{%elif key == 'ID'%}
+{{value}}
+<input id="txt_swarm_service_id" type="text" value="{{value}}" hidden>
+{%elif key == 'CreatedAt'%}
+{{value}}
+{%elif key == 'UpdatedAt'%}
+{{value}}
+{%endif%}
+</td>
+
+<td width="10%">
+{%if key == 'ID'%}
+<a href="#" title="Update Service" id="a_update_swarm_service" style="text-decoration:none;" onclick="containerOperations('update_swarm_service_form','none');return false;"><img src="{%static '/images/edit-colored.png' %}" style="width:20px;height:20px;"></a>
+{%endif%}
+</td>
+<td width="10%">
+{%if key == 'ID'%}
+<a href="#" title="View log"  style="text-decoration:none;" onclick="containerOperations('view_log_swarm_service_form','{{value}}');return false;"><img src="{%static '/images/file-code-colored.png' %}" style="width:20px;height:20px;"></a>
+{%endif%}
+</td>
+
+<td width="10%">
+{%if key == 'ID'%}
+<a href="#" title="Delete Service" id="a_delete_service" style="text-decoration:none;" onclick="containerOperations('delete_swarm_service','{{value}}');return false;"><img src="{%static '/images/trash-alt-colored.png' %}" style="width:20px;height:20px;"></a>
+{%endif%}
+</td>
+</tr>
+{%endfor%}
+</table>
+
+
+<table class="w3-table w3-striped w3-bordered w3-border w3-white" id="contdata" style="table-layout:fixed">
+<tr>
+<td colspan="3">
+<strong>All Data.</strong>
+</td>
+</tr>
+<tr>
+<td colspan="3">
+<pre id="pre_inspect_version">
+{{full_response}}
+</pre>
+</td>
+</tr>
+</table>
+
+
+{%endif%}
+{% elif http_resp_code == 404 %}
+No such node.
+<br>
+{{full_response}}
+{% elif http_resp_code == 500 %}
+Server error.
+<br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+Node is not part of a swarm.
+<br>
+{{full_response}}
+{%else%}
+An internal error occured.
+<br>
+{{full_response}}
+{%endif%}
+{%endif%}
+
+{% if c_activity == "update_swarm_service_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Update a service.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="table-layout:fixed">
+  <tr>
+  <td width="15%">
+  <label id="lbl_service_id">ID</label>
+  </td>
+  <td>
+  <input type="text" id="txt_service_id" value="{{txt_swarm_service_id}}" disabled>
+  </td>
+  <td class="w3-small">
+  </td>
+  </tr>
+
+  <tr>
+  <td width="15%">
+  <label id="lbl_service_version">Version</label>
+  </td>
+  <td>
+  <input type="text" id="txt_service_version" value="{{txt_swarm_service_version}}" disabled>
+  </td>
+  <td class="w3-small">
+  </td>
+  </tr>
+
+  <tr>
+  <td width="15%">
+  <label>Registry auth from</label>
+  </td>
+  <td>
+    <select id="registry_auth_from" name="nm_registry_auth_from">
+    <option value="spec">Spec</option>
+    <option value="previous-spec">Previous spec</option>
+    </select>
+  </td>
+  <td class="w3-small">
+  </td>
+  </tr>
+
+  <tr>
+  <td width="15%">
+  <label>Rollback</label>
+  </td>
+  <td>
+    <select id="id_rollback" name="nm_rollback">
+    <option value=""></option>
+    <option value="previous">Previous</option>
+    </select>
+  </td>
+  <td class="w3-small">
+According to docker API doc, set to this parameter to previous to cause a server-side rollback to the previous service spec. The supplied spec will be ignored in this case.
+  </td>
+  </tr>
+
+
+  <tr>
+  <td width="15%">
+  <label id="lbl_service_name">Name of service.</label>
+  </td>
+  <td>
+  <input type="text" id="txt_service_name">
+  </td>
+  <td class="w3-small">
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_service_labels">Labels </label>
+  </td>
+  <td>
+  <textarea id="txt_service_labels" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  According to docker API doc, this is user-defined key/value metadata.
+  <pre>
+    {
+    "organization": "African Software Group",
+    "department": "Sales"
+    }
+  </pre>
+  <br>
+  <a id="a_service_labels" title="Generate Service Label" href="#" onclick="generateSwarmLabel('txt_service_labels');return false;"><img alt="Generate Service Labels" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_task_template"><strong>Task Template </strong></label>
+  </td>
+  <td>
+  <textarea id="txt_task_template" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  User modifiable task configuration. Example.
+  <pre>
+{
+  "ContainerSpec": {
+  "Image": "redis"
+},
+  "Resources": {
+  "Limits": { },
+  "Reservations": { }
+},
+  "RestartPolicy": {
+  "Condition": "any",
+  "MaxAttempts": 0
+},
+  "Placement": { },
+  "ForceUpdate": 0
+}
+  </pre>
+
+  <br>
+  <a id="generate_task_template" title="Generate Task Template" href="#" onclick="generateTaskTemplate('txt_task_template');return false;"><img alt="Generate Task Template" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_scheduling_mode">Mode </label>
+  </td>
+  <td>
+  <textarea id="txt_scheduling_mode" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  According to docker API doc, this scheduling mode for the service.
+  <pre>
+    {
+    "Replicated": {
+    "Replicas": 4
+    }
+    }
+  </pre>
+  <br>
+  <a id="generate_scheduling_mode" title="Generate Scheduling Mode" href="#" onclick="generateSchedulingMode('txt_scheduling_mode');return false;"><img alt="Generate Scheduling Mode" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+
+  <tr>
+  <td>
+  <label id="lbl_update_config">Update Config </label>
+  </td>
+  <td>
+  <textarea id="txt_update_config" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  Specification for the update strategy of the service.
+  <pre>
+    {
+    "Parallelism": 2,
+    "Delay": 1000000000,
+    "FailureAction": "pause",
+    "Monitor": 15000000000,
+    "MaxFailureRatio": 0.15
+    }
+  </pre>
+  <br>
+  <a id="service_update_config" title="Update Config" href="#" onclick="generateServiceUpdateConfig('txt_update_config');return false;"><img alt="Update Config" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_rollback_config">Rollback Config </label>
+  </td>
+  <td>
+  <textarea id="txt_rollback_config" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  Specification for the rollback strategy of the service.
+  <pre>
+  {
+  "Parallelism": 1,
+  "Delay": 1000000000,
+  "FailureAction": "pause",
+  "Monitor": 15000000000,
+  "MaxFailureRatio": 0.15
+  }
+  </pre>
+  <br>
+  <a id="service_rollback_config" title="Rollback Config" href="#" onclick="generateServiceRollBackConfig('txt_rollback_config');return false;"><img alt="Rollabck Config" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+
+  <tr>
+  <td>
+  <label id="lbl_service_network">Networks </label>
+  </td>
+  <td>
+  <textarea id="txt_service_network" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  According to docker API docs, this is an Array of NetworkAttachmentConfig  Specifies which networks the service should attach to.
+  <pre>
+
+  </pre>
+  <br>
+  <!--a id="service_service_network" title="Network Config" href="#" onclick="generateServiceNetworkConfig('txt_service_network');return false;"><img alt="Rollabck Config" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a-->
+  </td>
+  </tr>
+
+
+
+  <tr>
+  <td>
+  <label id="lbl_endpoint_specification">Endpoint Specification </label>
+  </td>
+  <td>
+  <textarea id="txt_endpoint_specification" rows="12" cols="30" style="display:block;"></textarea>
+  </td>
+  <td class="w3-small">
+  Properties that can be configured to access and load balance a service. Example from docker API doc.
+  <pre>
+    {
+    "Ports": [
+    {
+    "Protocol": "tcp",
+    "PublishedPort": 8080,
+    "TargetPort": 80
+    }
+    ]
+    }
+  </pre>
+  <br>
+  <a id="service_endpoint_specification" title="Endpint Spec" href="#" onclick="generateServiceEndPointSpec('txt_endpoint_specification');return false;"><img alt="EndPoint Spcec" src="{%static '/images/copy.svg' %}" height="14px" width="14px"></a>
+  </td>
+  </tr>
+  <tr>
+  <td colspan="3">
+  <input class="w3-button w3-black" id="btn_update_service" type="button" value="Submit" onclick="containerOperations('update_swarm_service','none');return false;">
+  </td>
+  </tr>
+</table>
+{%endif%}
+
+
+{% if c_activity == "update_swarm_service" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Update swarm service.
+    </div>
+{% if http_resp_code == 200 %}
+<font color="green">Service with ID <strong>{{txt_service_id}}</strong> updated.</font>
+<a href="#" title="Inspect" id="inspect_service" onclick="containerOperations('inspect_service','{{txt_service_id}}');return false;"> Inspect</a>
+<br>
+Response from docker:<br>
+{{full_response}}
+{% elif http_resp_code == 400 %}
+Bad parameter.
+<br>
+{{full_response}}
+{% elif http_resp_code == 403 %}
+Network is not eligible for services.
+<br>
+{{full_response}}
+{% elif http_resp_code == 404 %}
+No such service
+<br>
+{{full_response}}
+{% elif http_resp_code == 500 %}
+Server error.
+<br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+Node is not part of a swarm.
+<br>
+{{full_response}}
+{%else%}
+An error occured.
+<br>
+{{full_response}}
+{%endif%}
+{%endif%}
+
+{% if c_activity == "delete_swarm_service" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Delete swarm service.
+    </div>
+{% if http_resp_code == 200 %}
+Service with ID {{c_parameter}} deleted.<br>
+<br>
+{% elif http_resp_code == 404 %}
+No such service
+<br>
+{{full_response}}
+{% elif http_resp_code == 500 %}
+Node is not part of a swarm.
+<br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+Node is not part of a swarm.
+<br>
+{{full_response}}
+{%else%}
+An error occured.
+<br>
+{{full_response}}
+{%endif%}
+
+{%endif%}
+
+{% if c_activity == "view_log_swarm_service_form" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Get service logs.
+    </div>
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white" id="contdata" style="table-layout:fixed">
+  <tr><td width="20%">Details</td><td><label>No</label>
+      <input type="radio" checked="checked" name="details" value="false"><label>Yes</label>
+      <input type="radio" name="details" value="true"></td>
+      <td class="w3-small">As per docker API doc, show service context and extra details provided to logs.</td>
+  </tr>
+
+  <tr><td width="20%">Follow</td><td><label>No</label>
+      <input type="radio" checked="checked" name="follow" value="false"><label>Yes</label>
+      <input type="radio" name="follow" value="true"></td>
+      <td class="w3-small">Keep connection after returning logs.</td>
+  </tr>
+
+  <tr><td width="20%">Stdout</td><td><label>No</label>
+      <input type="radio" checked="checked" name="stdout" value="false"><label>Yes</label>
+      <input type="radio" name="stdout" value="true"></td>
+      <td class="w3-small">Return logs from stdout.</td>
+  </tr>
+
+  <tr><td width="20%">Stderr</td><td><label>No</label>
+      <input type="radio" checked="checked" name="stderr" value="false"><label>Yes</label>
+      <input type="radio" name="stderr" value="true"></td>
+      <td class="w3-small">Return logs from stderr.</td>
+  </tr>
+
+  <tr><td width="20%">Timestamps</td><td><label>No</label>
+      <input type="radio" checked="checked" name="timestamps" value="false"><label>Yes</label>
+      <input type="radio" name="timestamps" value="true"></td>
+      <td class="w3-small">Add timestamps to every log line.</td>
+  </tr>
+
+  <tr>
+  <td width="15%">
+  <label>Tail</label>
+  </td>
+  <td>
+  <input type="text" id="txt_tail">
+  </td>
+  <td class="w3-small">
+  As per docker API docs, only return this number of log lines from the end of the logs. Specify as an integer or all to output all log lines.
+  </td>
+  </tr>
+<tr>
+<td colspan="3">
+  <input class="w3-button w3-black"  type="button" value="Submit" onclick="containerOperations('view_log_swarm_service','{{c_parameter}}');return false;">
+</td>
+<tr>
+</table>
+{%endif%}
+
+{% if c_activity == "view_log_swarm_service" %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    View log swarm service.
+    </div>
+{% if http_resp_code == 200 %}
+
+{%if len_resp >= 1 %}
+Log for service with ID {{c_parameter}}.<br>
+{{full_response}}
+{%else%}
+Currently no log for service with ID {{c_parameter}}.<br>
+{%endif%}
+{% elif http_resp_code == 404 %}
+No such service
+<br>
+{{full_response}}
+{% elif http_resp_code == 500 %}
+Server error.
+<br>
+{{full_response}}
+{% elif http_resp_code == 503 %}
+Node is not part of a swarm.
+<br>
+{{full_response}}
+{%else%}
+An error occured.
+<br>
+{{full_response}}
+{%endif%}
+{%endif%}
+</div>

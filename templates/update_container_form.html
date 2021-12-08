@@ -1,0 +1,242 @@
+{% load static %}
+
+{% if c_activity == 'update_container' %}
+Updated container with ID <strong>{{c_parameter}}</strong>
+{{http_resp_code}}
+{{resp}}
+{%endif%}
+
+{% if c_activity == 'update_container_form' %}
+
+<input type="hidden" id="parent_id" value={{c_parameter}}>
+<div style="width:98%">
+
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+    Updating container with ID <strong>{{c_parameter}}</strong>
+    </div>
+
+<table class="w3-table w3-striped w3-bordered w3-border  w3-white">
+<tr><td>CPU Shares</td><td><input type="number" id="txtcpushares" pattern="\d+"></input> </td>
+<td class="w3-small">Container's relative CPU weight versus other containers. Should be an integer.</td>
+</tr>
+<tr><td>Memory</td><td><input type="number" id="txtmemory" pattern="\d+"></input> </td>
+<td class="w3-small">Memory limit in bytes.</td>
+</tr>
+<tr><td>Cgroup Parent</td><td><input type="text"  id="cgroupparentarea"></td>
+<td class="w3-small">Path to where the containers control groups (cgroup) is created.
+Control groups are used to limits and isolate resources like CPU, memory e.t.c for a collection of processes. Example: <br>
+/sys/fs/cgroup/memory/mygroup
+ </td>
+</tr>
+<tr><td>Block I/O weight</td><td><input type="number"  id="txtblkioweight" pattern="\d+"></td>
+<td class="w3-small">Block I/O weight between 10 and 1000, or 0 to disable (default 0).
+ </td>
+</tr>
+<tr><td>Block I/O weight device</td><td><textarea  id="blkioweightdevicearea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Block I/O relative device weight. Example:<br>
+  [{"Path":"device_path","Weight":weight}]
+ </td>
+</tr>
+
+<tr><td>Block I/O Device Read Bps</td><td><textarea  id="BlkioDeviceReadBpsarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Limit read rate in bytes per second from device example:<br>
+  [{"Path":"device_path","Rate":rate}]
+ </td>
+</tr>
+
+<tr><td>Block I/O Device Write Bps</td><td><textarea  id="BlkioDeviceWriteBpsarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Limit write rate in bytes per second to a device example:<br>
+  [{"Path":"device_path","Rate":rate}]
+ </td>
+</tr>
+
+<tr><td>Block I/O Device Read IOps</td><td><textarea  id="BlkioDeviceReadIOpsarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Limit read rate in IO per second from a device example:<br>
+  [{"Path":"device_path","Rate":rate}]
+ </td>
+</tr>
+
+<tr><td>Block I/O Device Write IOps</td><td><textarea  id="BlkioDeviceWriteIOpsarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Limit write rate in IO per second to a device example:<br>
+  [{"Path":"device_path","Rate":rate}]
+ </td>
+</tr>
+
+<tr><td>Cpu Period</td><td><input type="number" id="txtCpuPeriod" pattern="\d+"></input> </td>
+<td class="w3-small">Length of a CPU period in microseconds</td>
+</tr>
+
+<tr><td>Cpu Quota</td><td><input type="number" id="txtCpuQuota" pattern="\d+"></input> </td>
+<td class="w3-small">CPU time in microseconds that container can get in CPU period.</td>
+</tr>
+
+<tr><td>Cpu Realtime Period</td><td><input type="number" id="txtCpuRealtimePeriod" pattern="\d+"></input> </td>
+<td class="w3-small">Cpu realtime period in microseconds.</td>
+</tr>
+
+<tr><td>Cpu Realtime Runtime</td><td><input type="number" id="txtCpuRealtimeRuntime" pattern="\d+"></input> </td>
+<td class="w3-small">Cpu realtime runtime in microseconds.</td>
+</tr>
+
+<tr><td>Cpuset Cpus</td><td><input type="text" id="txtCpusetCpus"></input> </td>
+<td class="w3-small">Cpus to use for execution. Example:<br>0-3 or 1,2</td>
+</tr>
+
+<tr><td>Cpuset Memory</td><td><input type="text" id="txtCpusetMems"></input> </td>
+<td class="w3-small">Memory nodes to allow execution. Available on Non Uniform Memory Access systems (NUMA) only. Example: 0,1</td>
+</tr>
+
+<tr><td>Devices</td><td><textarea  id="Devicesarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">An array of devices to add to the container. Example:<br>
+  <pre>
+    [
+    {
+      "PathOnHost":"/dev/sda",
+      "PathInContainer":"/dev/xvdc",
+      "CgroupPermissions":"rwm"
+    },
+    {
+      "PathOnHost":"/dev/sdb",
+      "PathInContainer":"/dev/xvdd",
+      "CgroupPermissions":"rwm"
+    }
+  ]
+  </pre>
+ </td>
+</tr>
+
+<tr><td>Device Cgroup Rule</td><td><textarea  id="DeviceCgroupRulesarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Array of cgroup rules to apply to container:<br>
+  r,w,m
+ </td>
+</tr>
+
+<tr><td>Device Requests</td><td><textarea  id="DeviceRequestsarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Requests to be sent to device drivers:<br>
+  <pre>
+    [
+    {
+    "Driver":"nvidia",
+    "Count":-1,
+    "DeviceIDs":["0", "afgjs-ioklp-iutr"],
+    "Capabilities":[["gpu"], ["nvidia"]],
+    "Options":{}
+    }
+    ]
+  </pre>
+ </td>
+</tr>
+
+<tr><td>Kernel Memory</td><td><input type="number" id="txtKernelMemory" pattern="\d+"></input> </td>
+<td class="w3-small">Kernel memory limit (bytes).</td>
+</tr>
+
+<tr><td>Kernel Memory TCP</td><td><input type="number" id="txtKernelMemoryTCP" pattern="\d+"></input> </td>
+<td class="w3-small">Hard limit for kernel TCP buffer memory in bytes.</td>
+</tr>
+
+
+<tr><td>Memory Reservation</td><td><input type="number" id="txtMemoryReservation" pattern="\d+"></input> </td>
+<td class="w3-small">Memory soft limit in bytes.</td>
+</tr>
+
+
+<tr><td>Memory Swap</td><td><input type="number" id="txtMemorySwap"></input> </td>
+<td class="w3-small">Total memory limit including swap. If you want unlimited swap set to -1.</td>
+</tr>
+
+
+<tr><td>Memory Swappiness</td><td><input type="number" id="txtMemorySwappiness" pattern="\d+"></input> </td>
+<td class="w3-small">Container's memory swappiness between 0 and 100.</td>
+</tr>
+<tr><td>Nano CPUs</td><td><input type="text" id="txtNanoCPUs" pattern="\d+"></input> </td>
+<td class="w3-small">CPU shares in units of 1/1e9 (or 10^-9).</td>
+</tr>
+<tr><td colspan="2">
+  <table>
+  <tr>
+  <td width="200px"><label>Oom Kill Disable</label></td>
+  <td><input type="radio" checked="checked" name="txtOomKillDisable" value="false"><label>No</label></td>
+  <td><input type="radio" name="txtOomKillDisable" value="true"><label>Yes</label></td>
+  </tr></table>
+</td>
+<td class="w3-small">Disable OOM Killer for the container.</td>
+</tr>
+<tr><td colspan="2">
+  <table>
+  <tr>
+  <td width="200px"><label>Init</label></td>
+  <td><input type="radio"  name="txtInit" value="false"><label>No</label></td>
+  <td><input type="radio" name="txtInit" value="true"><label>Yes</label></td>
+  </tr></table>
+
+</td>
+<td class="w3-small">Run an init inside the container. </td>
+</tr>
+
+<tr><td>Pids Limit</td><td><input type="text" id="txtPidsLimit" pattern="\d+"></input> </td>
+<td class="w3-small">Tune container pids limit (set -1 for unlimited)</td>
+</tr>
+<tr><td>Ulimits</td><td><textarea  id="Ulimitsarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">Resource limits to set in container.. Example:<br>
+  <pre>
+    [
+    {
+      "Name":"nofile",
+      "Soft":2048,
+      "Hard":3052
+    }
+  ]
+  </pre>
+ </td>
+</tr>
+
+<tr><td>Cpu Count</td><td><input type="text" id="txtCpuCount" pattern="\d+"></input> </td>
+<td class="w3-small">The number of usable CPUs on Windows only.</td>
+</tr>
+
+<tr><td>Cpu Percent</td><td><input type="text" id="txtCpuPercent" pattern="\d+"></input> </td>
+<td class="w3-small">The usable percentage of the available CPUs on Windows only.</td>
+</tr>
+
+
+<tr><td>IO Maximum IOps</td><td><input type="text" id="txtIOMaximumIOps" pattern="\d+"></input> </td>
+<td class="w3-small">Maximum IOps for the container system drive on Windows only</td>
+</tr>
+<tr><td>IO Maximum Bandwidth</td><td><input type="text" id="txtIOMaximumBandwidth" pattern="\d+"></input> </td>
+<td class="w3-small">Maximum IO in bytes per second for the container system drive on Windows only.</td>
+</tr>
+
+<tr><td>Restart Policy </td><td><textarea  id="RestartPolicyarea" rows="12" cols="30" style="display:block;"></textarea>
+<td class="w3-small">The behavior to apply when the container exits. The default is not to restart. Valid values are "", "always", "unless-stopped" or "on-failure".
+  Example:<br>
+  <pre>
+    {
+      "Name":"on-failure",
+      "MaximumRetryCount":3
+    }
+  </pre>
+  <a id="generate_restart_policy" title="Generate Network Config data" href="#" onclick="generateRestartPolicy();return false;"><img alt="Generate Restart Policy" src="/static/images/copy.svg" width="14px" height="14px"></a>
+ </td>
+</tr>
+
+
+</table>
+<div id="docker_create_modal" class="asf_modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <div class="bash" id="docker_create_text">
+
+    </div>
+
+  </div>
+
+</div>
+<br>
+<input class="w3-button w3-black" type="button" value="Submit" onclick="containerOperations('update_container','{{c_parameter}}');return false;">
+<input class="w3-button w3-black" type="button" value="Generate Script" id="btn_docker_update" onclick="generateContainerUpdate()">
+
+</div>
+{%endif%}

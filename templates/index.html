@@ -1,0 +1,509 @@
+{% load static %}
+{% static "images" as baseUrl %}
+
+<!DOCTYPE html>
+
+<html lang="en-us" >
+<head>
+<title>ASM | Home</title>
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css'%}">
+
+
+
+
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/responsive.css'%}">
+
+
+<meta name="robots" content="NONE,NOARCHIVE">
+<script src="{%static 'js/Chart.min.js' %}"></script>
+<script src="{%static 'js/utils.js' %}"></script>
+<script src="{%static 'js/jquery-3.5.1.js' %}"></script>
+<script src="{%static 'js/custom.js' %}"></script>
+<script src="{%static 'js/jquery.dataTables.min.js' %}"></script>
+<script src="{%static 'js/json-viewer.js' %}"></script>
+<!--script src="{%static '/css/json-viewer.js' %}"></script-->
+<link href="{%static 'css/w3.css' %}" rel="stylesheet" type="text/css">
+<link href="{%static 'css/modal.css' %}" rel="stylesheet" type="text/css">
+<link href="{%static 'css/jquery.dataTables.min.css' %}" rel="stylesheet" type="text/css">
+<link href="{%static 'css/main.css' %}" rel="stylesheet" type="text/css">
+<style media="screen">
+
+#div-right-pane
+{
+  word-wrap: break-word;
+}
+
+#div_port_mapping
+{
+  display:grid;
+  grid-template-columns: 100%;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
+  margin:5px;
+}
+
+.div_volume_binding
+{
+  display:grid;
+  grid-template-columns: 20% 20% 20% 40%;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
+  margin:5px;
+}
+.div_port_binding
+{
+  display:grid;
+  grid-template-columns: 15% 15% 70%;
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
+  margin:5px;
+}
+
+  .main-grid
+  {
+    display:grid;
+    grid-template-columns: 20% 80%;
+    grid-column-gap: 10px;
+    margin:10px;
+  }
+.kpi-box
+{
+  display:grid;
+  grid-template-columns: 19.5% 19.5% 19.5% 19.5% 19.5%;
+  grid-column-gap: 5px;
+  margin:3px;
+}
+.container-table-disp
+{
+  width:99%;
+  overflow: auto;
+  margin:3px;
+}
+
+.running-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #C1EA17;
+  border-radius: 50%;
+  display: inline-block;
+}
+.exited-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #FF0000;
+  border-radius: 50%;
+  display: inline-block;
+}
+.created-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #3A4411;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* .others-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #FF00FG;
+  border-radius: 50%;
+  display: inline-block;
+} */
+.text
+{
+  font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
+
+
+.console {
+ background-color: black;
+ border-radius: 5px;
+ padding:5px;
+ color: white;
+ overflow:auto;
+ font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
+
+.bash {
+ background-color: black;
+ border-radius: 5px;
+ padding:5px;
+ color: white;
+ font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
+.other-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #2297EE;
+  border-radius: 50%;
+  display: inline-block;
+}
+.paused-dot {
+  height: 10px;
+  width: 10px;
+  background-color: #EE22D8;
+  border-radius: 50%;
+  display: inline-block;
+}
+.chart-view
+{
+  display:grid;
+  grid-template-columns: 32.67% 32.67% 32.67%;
+  grid-column-gap: 5px;
+  margin:3px;
+}
+.kpi-val
+{
+  border-radius: 3px 3px 0 0;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  align-content: center;
+  text-align: center;
+}
+/* Dropdown Button */
+.dropbtn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Remove default bullets */
+
+ul,#images_ul,#container_ul,#volumes_ul,#swarms_ul,#network_ul,#nodes_ul,#services_ul,#tasks_ul {
+  list-style-type: none;
+}
+/* Remove margins and padding from the parent ul */
+#images_ul,#container_ul,#volumes_ul,#swarms_ul,#network_ul,#nodes_ul,#services_ul,#tasks_ul {
+  margin: 0;
+  padding: 0;
+	list-style-type: none;
+}
+
+
+
+/* Style the caret/arrow */
+.caret {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+/* Create the caret/arrow with a unicode, and style it */
+.caret::before {
+  content: "\25B6";
+  color: #c66b27;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+/* Hide the nested list */
+.nested {
+  display: none;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
+
+legend
+{
+    padding:0px 10px;
+    background:#c66b27;
+    color:#FFF;
+}
+
+.left-main-menu
+{
+border: 1px solid #c66b27;
+border-radius: 5px;
+}
+.menu-items
+{
+  margin:10px;
+}
+.menu-header
+{
+  background-color: #c66b27;
+  border-radius: 3px 3px 0 0;
+  width:100%;
+  height:40px;
+  margin:0px;
+  font-size:12px;
+  color:#ffffff;
+}
+#kpi-val-images
+{
+  background-color:#ff944d;
+}
+#kpi-val-cont
+{
+  background-color:#ffcc66;
+}
+#kpi-val-cont-running
+{
+  background-color:#33cc33;
+}
+#kpi-val-cont-stopped
+{
+  background-color:#ff6666;
+}
+
+#kpi-val-cont-paused
+{
+  background-color:#3399ff;
+}
+
+</style>
+</head>
+
+
+<body class=" dashboard"
+  data-admin-utc-offset="0">
+
+<!-- Container -->
+<div id="container">
+
+
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+
+		<h1 id="site-name">{{app_title}}</h1></div>
+
+
+        <div id="user-tools">
+                Welcome, <strong>{{user.username}}</strong>.
+                <a href="/admin/password_change/">Change password</a> /
+
+                <a href="accounts/logout">Log out</a>
+        </div>
+    </div>
+    <!-- END Header -->
+  <!-- Start Content -->
+<div class="main-grid">
+  <div class="left-pane">
+<div class="left-main-menu">
+  <div class="menu-header">
+    <a href="" title="Dashboard" onclick="showDashboard();return false;"><img src="{%static '/images/chart-bar-colored.png' %}" style="width:20px;height:20px;"></img></a>PaaS Creator
+  </div>
+  <div class="menu-items">
+  <ul id="images_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Images </span>
+<ul class="nested">
+  <li style="list-style-type: none;">
+    <a href="#" title="List container images on server" id="listImage" style="text-decoration:none;" onclick="refreshImage();return false;"><i class="fa fa-users fa-fw"></i><img src="{%static '/images/image-colored.png' %}" style="width:20px;height:20px;"> All images</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Pull image from docker hub" id="pull_image_link"  onclick="pullImage('pull_image_form');return false;" style="text-decoration:none;"><img src="{%static '/images/share-square-colored.png' %}" style="width:20px;height:20px;"> Pull image</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Build an image from tarball" id="build_image_tarball_link" style="text-decoration:none;" onclick="buildImage('render_build_image_form_tarball');return false;"><img src="{%static '/images/file-archive-colored.png' %}" style="width:20px;height:20px;"> Build image from tarball</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Build an image" id="build_image_link" style="text-decoration:none;" onclick="buildImage('render_build_image_form');return false;"><img src="{%static '/images/file-code-colored.png' %}" style="width:20px;height:20px;"> Build image from dockerfile</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Delete builder cache" id="delete_cache" style="text-decoration:none;" onclick="buildImage('delete_cache');return false;"><img src="{%static '/images/minus-square-colored.png' %}" style="width:20px;height:20px;"> Delete builder cache</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Delete unused images" id="delete_unused_images" style="text-decoration:none;" onclick="buildImage('delete_unused_images');return false;"><img src="{%static '/images/trash-alt-colored.png' %}" style="width:20px;height:20px;"> Delete unused images</a>
+  </li>
+</ul>
+<ul id="container_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Containers </span>
+<ul class="nested">
+<li style="list-style-type: none;">
+  <a href="#" title="List all container on server" id="listContainer" style="text-decoration:none;" onclick="containerOperations('list_all','none');return false;"><img src="{%static '/images/object-group-colored.png' %}" style="width:20px;height:20px;"> All containers</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="List running containers on server" id="listContainerRunning" style="text-decoration:none;" onclick="containerOperations('list_all','running');return false;"><img src="{%static '/images/play-circle.png' %}" style="width:20px;height:20px;"> Running containers</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="List paused containers on server" id="listContainerPaused" style="text-decoration:none;" onclick="containerOperations('list_all','paused');return false;"><img src="{%static '/images/pause-circle-colored.png' %}" style="width:20px;height:20px;"> Paused containers</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="List dead containers on server" id="listContainerDead" style="text-decoration:none;" onclick="containerOperations('list_all','dead');return false;"><img src="{%static '/images/hand-point-down-colored.png' %}" style="width:20px;height:20px;"> Dead containers</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="List restarting containers on server" id="listContainerRestarting" style="text-decoration:none;" onclick="containerOperations('list_all','restarting');return false;"><img src="{%static '/images/arrow-alt-circle-right-colored.png' %}" style="width:20px;height:20px;"> Restarting containers</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="List removing containers on server" id="listContainerRemoving" style="text-decoration:none;" onclick="containerOperations('list_all','removing');return false;"><img src="{%static '/images/clock-colored.png' %}" style="width:20px;height:20px;"> Removing Containers</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="List created containers on server" id="listCreated" style="text-decoration:none;" onclick="containerOperations('list_all','created');return false;"><img src="{%static '/images/file-colored.png' %}" style="width:20px;height:20px;"> Created Containers</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="List exited containers on server" id="listContainerExited" style="text-decoration:none;" onclick="containerOperations('list_all','exited');return false;"><img src="{%static '/images/stop-circle-colored.png' %}" style="width:20px;height:20px;"> Exited Containers</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul id="volumes_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Volumes </span>
+<ul class="nested">
+<li style="list-style-type: none;">
+  <a href="#" title="List volumes" id="listVolumes" style="text-decoration:none;" onclick="containerOperations('list_volumes','none');return false;"><img src="{%static '/images/hdd-colored.png' %}" style="width:20px;height:20px;"> List volumes</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="Create volume" id="create_volume" style="text-decoration:none;" onclick="containerOperations('create_volume_form','none');return false;"><img src="{%static '/images/file-colored.png' %}" style="width:20px;height:20px;"> Create volume</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="Delete unused volumes" id="delete_unused" style="text-decoration:none;" onclick="containerOperations('delete_unused','none');return false;"><img src="{%static '/images/trash-alt-colored.png' %}" style="width:20px;height:20px;"> Delete unused volumes</a>
+</li>
+</ul>
+</li>
+</ul>
+<ul id="network_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Networks </span>
+<ul class="nested">
+<li style="list-style-type: none;">
+  <a href="#" title="List networks" id="listNetworks" style="text-decoration:none;" onclick="containerOperations('list_networks','none');return false;"><img src="{%static '/images/share-square-colored.png' %}" style="width:20px;height:20px;"> List networks</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="Create Network" id="create_network_form" style="text-decoration:none;" onclick="containerOperations('create_network_form','none');return false;"><img src="{%static '/images/file-colored.png' %}" style="width:20px;height:20px;"> Create Network</a>
+</li>
+<li style="list-style-type: none;">
+  <a href="#" title="Delete unused networks" id="delete_unused_networks" style="text-decoration:none;" onclick="containerOperations('delete_unused_networks','none');return false;"><img src="{%static '/images/trash-alt-colored.png' %}" style="width:20px;height:20px;"> Delete unused networks</a>
+</li>
+</ul>
+</li>
+</ul>
+<ul id="swarms_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Swarm </span>
+<ul class="nested">
+  <li style="list-style-type: none;">
+    <a href="#" title="Inspect swarm" id="inspect_swarm" style="text-decoration:none;" onclick="containerOperations('inspect_swarm','none');return false;"><img src="{%static '/images/eye-colored.png' %}" style="width:20px;height:20px;"> Inspect swarm</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Initialize new swarm" id="initialize_new_swarm_form" style="text-decoration:none;" onclick="containerOperations('initialize_new_swarm_form','none');return false;"><img src="{%static '/images/file-colored.png' %}" style="width:20px;height:20px;"> Initialize new swarm</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Join existing swarm" id="join_existing_swarm_form" style="text-decoration:none;" onclick="containerOperations('join_existing_swarm_form','none');return false;"><img src="{%static '/images/hand-point-up-colored.png' %}" style="width:20px;height:20px;"> Join an existing swarm</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Leave a swarm" id="leave_swarm_form" style="text-decoration:none;" onclick="containerOperations('leave_swarm_form','none');return false;"><img src="{%static '/images/sad-tear-colored.png' %}" style="width:20px;height:20px;"> Leave swarm</a>
+  </li>
+
+  <li style="list-style-type: none;">
+    <a href="#" title="Update a swarm" id="update_swarm_form" style="text-decoration:none;" onclick="containerOperations('update_swarm_form','none');return false;"><img src="{%static '/images/edit-colored.png' %}" style="width:20px;height:20px;"> Update swarm</a>
+  </li>
+
+<li style="list-style-type: none;">
+<a href="#" title="Get the unlock key" id="get_the_unlock_key" style="text-decoration:none;" onclick="containerOperations('get_the_unlock_key','none');return false;"><img src="{%static '/images/id-card-colored.png' %}" style="width:20px;height:20px;"> Get the unlock key</a>
+</li>
+<li style="list-style-type: none;">
+<a href="#" title="Unlock a locked manager" id="unlock_manager_form" style="text-decoration:none;" onclick="containerOperations('unlock_manager_form','none');return false;"><img src="{%static '/images/id-badge-colored.png' %}" style="width:20px;height:20px;"> Unlock a locked manager</a>
+</li>
+</ul>
+</li>
+</ul>
+<ul id="nodes_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Nodes </span>
+<ul class="nested">
+  <li style="list-style-type: none;">
+    <a href="#" title="List nodes" id="list_swarm_nodes" style="text-decoration:none;" onclick="containerOperations('list_nodes','none');return false;"><img src="{%static '/images/object-group-colored.png' %}" style="width:20px;height:20px;"> List nodes</a>
+  </li>
+
+</ul>
+</li>
+</ul>
+<ul id="services_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Services </span>
+<ul class="nested">
+  <li style="list-style-type: none;">
+    <a href="#" title="List services" id="list_services" style="text-decoration:none;" onclick="containerOperations('list_services','none');return false;"><img src="{%static '/images/object-group-colored.png' %}" style="width:20px;height:20px;"> List Services</a>
+  </li>
+  <li style="list-style-type: none;">
+    <a href="#" title="Create Service" id="create_service_form" style="text-decoration:none;" onclick="containerOperations('create_service_form','none');return false;"><img src="{%static '/images/file-colored.png' %}" style="width:20px;height:20px;"> Create a service</a>
+  </li>
+
+</ul>
+</li>
+</ul>
+<ul id="tasks_ul">
+<li style="list-style-type: none;">
+<span class="caret"><img src="{%static '/images/folder-colored.png' %}" style="width:20px;height:20px;"> Tasks </span>
+<ul class="nested">
+  <li style="list-style-type: none;">
+    <a href="#" title="Tasks" id="list_tasks" style="text-decoration:none;" onclick="containerOperations('list_tasks','none');return false;"><img src="{%static '/images/object-group-colored.png' %}" style="width:20px;height:20px;"> List Tasks</a>
+  </li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="right-pane" id="div-right-pane">
+
+
+  </div>
+</div>
+  <!-- End Content -->
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+<script type="text/javascript">
+  //For bar menu
+var toggler = document.getElementsByClassName("caret");
+var i;
+
+for (i = 0; i < toggler.length; i++) {
+  toggler[i].addEventListener("click", function() {
+    this.parentElement.querySelector(".nested").classList.toggle("active");
+    this.classList.toggle("caret-down");
+  });
+}
+</script>
+</body>
+</html>

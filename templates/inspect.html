@@ -1,0 +1,80 @@
+{% load static %}
+<div style="width:98%">
+<div>
+</div>
+{% if c_activity == "inspect_container" and c_parameter_len > 1 %}
+<div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+  Inspecting container with ID <strong>{{c_parameter}}</strong>
+  </div>
+{%endif%}
+
+{% if c_activity == "update_container" and c_parameter_len > 1 %}
+
+Updated container with ID <strong>{{c_parameter}}</strong><br><br><br>
+{%endif%}
+
+{%if c_parameter_len > 1 %}
+
+<div style="overflow:scroll; width:100%;">
+<table class="w3-table w3-striped w3-bordered w3-border w3-hoverable w3-white">
+{%for key,value in cont_data.items %}
+  <tr>
+
+{% if key == 'State' %}
+  <td width="200px">
+<strong>{{key}}</strong>
+</td>
+<td>
+<pre id="state">{{state}}</pre>
+</td>
+{% elif key == 'HostConfig' %}
+  <td >
+<strong>{{key}}</strong>
+</td>
+<td >
+<pre id="host_config">{{host_config}}</pre>
+</td>
+{% elif key == 'GraphDriver' %}
+  <td >
+<strong>{{key}}</strong>
+</td>
+<td  width="200px">
+<pre id="graph_driver">{{graph_driver}}</pre>
+</td>
+{% elif key == 'Config' %}
+  <td >
+<strong>{{key}}</strong>
+</td>
+<td  width="200px">
+<pre id="config">{{config}}</pre>
+</td>
+{% elif key == 'NetworkSettings' %}
+  <td >
+<strong>{{key}}</strong>
+</td>
+<td  width="200px">
+<pre id="network_settings">{{network_settings}}</pre>
+</td>
+{% elif key == 'Mounts' %}
+  <td >
+<strong>{{key}}</strong>
+</td>
+<td  width="200px">
+<pre id="mounts">{{mounts}}</pre>
+</td>
+{%else%}
+  <td >
+<strong>{{key}}</strong>
+</td>
+<td >
+{{value}}
+</td>
+{%endif%}
+
+</tr>
+{%endfor%}
+</table>
+
+{%endif%}
+</div>
+</div>

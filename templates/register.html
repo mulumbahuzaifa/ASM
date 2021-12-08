@@ -1,0 +1,157 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en-us" >
+<head>
+<title>Register | ASM</title>
+<link
+rel="stylesheet"
+type="text/css"
+href="{% static 'admin/css/base.css'%}"
+/>
+<link
+rel="stylesheet"
+type="text/css"
+href="{% static 'admin/css/login.css'%}"
+/>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/responsive.css">
+
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+<meta name="robots" content="NONE,NOARCHIVE">
+<style media="screen">
+
+.grid
+{
+  display:grid;
+  grid-template-columns: 150px 200px;
+}
+
+</style>
+</head>
+
+
+
+
+<body      class="login"
+data-admin-utc-offset="0"
+style="
+  background-image: url(/static/images/zain-saleem-Gbeb4Mxi6c8-unsplash.jpg);
+  background-repeat: no-repeat, repeat;
+  background-size: cover;
+  background-position: center;
+  height: 500px;
+">
+
+<!-- Container -->
+<div id="container">
+
+
+    <!-- Header -->
+    <div id="header">
+        <div id="branding">
+
+<h1 id="site-name">Register</a></h1>
+
+        </div>
+
+
+    </div>
+    <!-- END Header -->
+
+
+
+
+
+
+
+    <!-- Content -->
+    <div id="content" class="colM">
+
+{% if messages %}
+
+<p class="errornote">
+  {%for message in messages%}
+    {{message}}
+    {%endfor%}
+</p>
+
+
+{%endif%}
+
+
+<div id="content-main">
+
+
+
+<form action="register" method="post" id="register-form">
+  {%csrf_token%}
+
+<div class="grid">
+  <div><label class="required" for="username">Username</label></div>
+  <div><input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="first_name"></div>
+  <div><label class="required" for="first_name">First Name</label></div>
+      <div><input type="text" name="first_name" autofocus autocapitalize="none" autocomplete="first_name" maxlength="150" required id="first_name"></div>
+
+
+<div><label class="required" for="last_name">Last Name</label></div>
+    <div><input type="text" name="last_name" autofocus autocapitalize="none" autocomplete="last_name" maxlength="150" required id="last_name"></div>
+<div><label class="required" for="email">Email</label></div>
+    <div><input type="email" name="email" autofocus autocapitalize="none" autocomplete="email" maxlength="150" required id="email"></div>
+<div><label class="required" for="password1">Password</label></div>
+    <div><input type="password" name="password1" autofocus autocapitalize="none" autocomplete="password1" maxlength="150" required id="password1"></div>
+<div><label class="required" for="password2">Confirm Password</label></div>
+    <div><input type="password" name="password2" autofocus autocapitalize="none" autocomplete="password2" maxlength="150" required id="password2"></div>
+
+</div>
+
+
+
+</div>
+
+
+
+  <div class="submit-row">
+    <label>&nbsp;</label><input type="submit" value="Register">
+  </div>
+
+</form>
+<div>
+  <a href="{% url 'login' %}">Have an account, Login</a>
+</div>
+
+</div>
+
+
+        <br class="clear">
+    </div>
+
+    <!-- END Content -->
+
+    <div id="footer"></div>
+</div>
+<!-- END Container -->
+<script
+src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+crossorigin="anonymous"
+></script>
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+crossorigin="anonymous"
+></script>
+<script
+src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+crossorigin="anonymous"
+></script>
+
+</body>
+</html>

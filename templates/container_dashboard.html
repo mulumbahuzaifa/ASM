@@ -1,0 +1,172 @@
+<div style="width:98%">
+{% if error and error.strip %}
+There is an issue returning data from docker server. Check that it is up and accessible.<br>
+{{error}}
+{%else%}
+{%if info %}
+<input type="hidden" id="var_cont_id" name="variable" value="{{cont_id}}">
+<div class="dashboard" id="cont-dashboard">
+
+  {%if contattr%}
+  <div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+  Dashboard for container with ID {{cont_id}}
+      </div>
+  <div class="chart-view">
+    <div class="div-cont-memory">
+    <div style="height:25px;margin:8px;">
+      Containers by % Memory
+    </div>
+      <canvas id="mem-bar-chart"></canvas>
+    </div>
+    <div class="div-cont-cpu">
+      <div style="height:25px;margin:8px;">
+        Containers by % CPU
+      </div>
+      <canvas id="cpu-bar-chart"></canvas>
+    </div>
+    <div class="div-cont-network">
+      <div style="height:25px;margin:8px;">
+        Containers by Network Usage (KB)
+      </div>
+      <canvas id="network-bar-chart"></canvas>
+    </div>
+  </div>
+  <div class="container-table-disp">
+    <div style="margin:5px;height:20px;">
+
+    </div>
+
+<div>
+    <div style="margin-top:5px;margin-bottom:5px;height:30px;background-color:#7E577A;color:#FFFFFF;font-size: 12px;border-radius: 3px 3px 0 0;padding:5px;">
+  Data for container {{cont_id}}
+    </div>
+<table id="cont-running-data-table" class="display nowrap dataTable dtr-inline collapsed cell-border compact"  role="grid">
+  <thead>
+    <tr role="row">
+      <th class="sorting" tabindex="0"  rowspan="1" colspan="1" style="width: 25px;" aria-sort="ascending">Id</th>
+      <th class="sorting" tabindex="0"  rowspan="1" colspan="1" style="width: 25px;">Name</th>
+      <th class="sorting" tabindex="0"  rowspan="1" colspan="1" style="width: 25px;" >CPU (%)</th>
+      <th class="dt-body-right sorting" tabindex="0"  rowspan="1" colspan="1" style="width: 28px;">Mem Usage (MiB)</th>
+      <th class="sorting" tabindex="0"  rowspan="1" colspan="1" style="width:5px;">MEM (%)</th>
+      <th class="sorting" tabindex="0"  rowspan="1" colspan="1" style="width: 25px;text-align:left;">Received (KiB)</th>
+      <th class="sorting" tabindex="0"  rowspan="1" colspan="1" style="width: 25px;text-align:left;">Transmitted (KiB)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for item in contattr%}
+    <tr role="row" class="odd">
+      <td>{{item.id}}</td>
+      <td>{{item.name}}</td>
+      <td>{{item.cpu_percent}}</td>
+      <td>{{item.mem_mib}}</td>
+      <td>{{item.mem_percent}}</td>
+      <td>{{item.rx_bytes}}</td>
+      <td>{{item.tx_bytes}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+  </table>
+</div>
+
+{%endif%}
+
+
+  </div>
+</div>
+</div>
+{%if contattr%}
+<script type="text/javascript">
+  var mem_chart = new Chart(document.getElementById("mem-bar-chart"), {
+      type: 'bar',
+      data: {
+        labels: {{mem_name_list | safe}},
+        datasets: [
+          {
+            label: "Memory (%)",
+            backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+            data: {{mem_val_list | safe}}
+          }
+        ]
+      },
+      options: {
+        legend: { display: false },
+        title: {
+          display: false,
+          text: 'Container Memory Usage(%)'
+        }
+      }
+  });
+  </script>
+<script>
+  var cpu_chart = new Chart(document.getElementById("cpu-bar-chart"), {
+      type: 'bar',
+      data: {
+        labels: {{mem_name_list | safe}},
+        datasets: [
+          {
+            label: "CPU (%)",
+            backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+            data: {{cpu_percent | safe}}
+          }
+        ]
+      },
+      options: {
+        legend: { display: false },
+        title: {
+          display: false,
+          text: 'CPU  Usage(%)'
+        }
+      }
+  });
+</script>
+
+<script>
+  var network_chart = new Chart(document.getElementById("network-bar-chart"), {
+    type: 'bar',
+    data: {
+      labels: {{mem_name_list | safe}},
+      datasets: [
+        {
+          label: "tx_bytes",
+          backgroundColor: window.chartColors.red,
+          data: {{tx_bytes | safe}}
+        },
+				{
+					label: "rx_bytes",
+					backgroundColor: window.chartColors.blue,
+					data: {{rx_bytes | safe}}
+				},
+      ]
+
+    },
+    options: {
+      legend: { display: true },
+      title: {
+        display: false,
+        text: 'Container Network Usage (KB)'
+      },
+			tooltips: {
+				mode: 'index',
+				intersect: false
+			},
+			scales: {
+				xAxes: [{
+					stacked: true,
+				}],
+				yAxes: [{
+					stacked: true
+				}]
+			}
+
+    }
+});
+
+
+</script>
+
+{%endif%}
+{%else%}
+There is an issue returning data from docker server. Check that it is up and accessible.<br>
+{{error}}
+{%endif%}
+{%endif%}
